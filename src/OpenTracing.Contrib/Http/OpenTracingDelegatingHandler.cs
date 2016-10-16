@@ -15,11 +15,11 @@ namespace OpenTracing.Contrib.Http
         private const string Component = "HttpClient";
 
         // Poor man's singleton dependency injection :)
-        private static IHttpOperationName DefaultOperationName = new DefaultHttpOperationName();
+        private static IOutgoingHttpOperationName DefaultOperationName = new DefaultOutgoingHttpOperationName();
 
         private readonly ITracer _tracer;
         private readonly ISpanContextAccessor _spanContextAccessor;
-        private readonly IHttpOperationName _operationName;
+        private readonly IOutgoingHttpOperationName _operationName;
 
         public OpenTracingDelegatingHandler(ITracer tracer, ISpanContextAccessor spanContextAccessor)
             : this(tracer, spanContextAccessor, DefaultOperationName)
@@ -29,7 +29,7 @@ namespace OpenTracing.Contrib.Http
         public OpenTracingDelegatingHandler(
             ITracer tracer,
             ISpanContextAccessor spanContextAccessor,
-            IHttpOperationName operationName)
+            IOutgoingHttpOperationName operationName)
         {
             if (tracer == null)
                 throw new ArgumentNullException(nameof(tracer));

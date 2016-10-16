@@ -7,14 +7,8 @@ namespace OpenTracing.Contrib.Testing
     {
         private readonly IDictionary<string, string> _baggage;
 
-        public Guid TraceId { get; }
-
-        public Guid SpanId { get; }
-
         public TestSpanContext(IDictionary<string, string> baggage = null)
         {
-            TraceId = Guid.NewGuid();
-            SpanId = Guid.NewGuid();
             _baggage = baggage ?? new Dictionary<string, string>();
         }
 

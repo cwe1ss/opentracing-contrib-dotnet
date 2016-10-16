@@ -5,7 +5,7 @@ namespace OpenTracing.Contrib.Http
     /// <summary>
     /// Derives an operation name from an HTTP request message.
     /// </summary>
-    public interface IHttpOperationName
+    public interface IOutgoingHttpOperationName
     {
         /// <summary>
         /// Derives an operation name from an HTTP request message.

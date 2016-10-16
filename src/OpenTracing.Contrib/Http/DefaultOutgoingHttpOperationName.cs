@@ -7,7 +7,7 @@ namespace OpenTracing.Contrib.Http
     /// <para>The default for outgoing HTTP client operation names.</para>
     /// <para>Will use "sales/invoices" for "http://www.example.com/sales/invoices?id=1234".</para>
     /// </summary>
-    public class DefaultHttpOperationName : IHttpOperationName
+    public class DefaultOutgoingHttpOperationName : IOutgoingHttpOperationName
     {
         public string GetOperationName(HttpRequestMessage request)
         {
