@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using OpenTracing.Contrib.Testing;
 using Xunit;
@@ -6,60 +7,65 @@ namespace OpenTracing.Contrib.Tests
 {
     public class SpanContextAccessorTest
     {
-        private ISpanContext CallSync(ISpanContextAccessor accessor)
+        private ISpan CallSync(ISpanAccessor accessor)
         {
-            return accessor.SpanContext;
+            return accessor.Span;
         }
 
-        private async Task<ISpanContext> CallAsync(ISpanContextAccessor accessor)
+        private async Task<ISpan> CallAsync(ISpanAccessor accessor)
         {
             await Task.Delay(15);
-            return accessor.SpanContext;
+            return accessor.Span;
+        }
+
+        private ISpan GetSpan()
+        {
+            return new TestSpan(new TestTracer(), new TestSpanContext(), DateTime.UtcNow, "test", null, null);
         }
 
         [Fact]
         public void Returns_null_if_not_set()
         {
-            var accessor = new SpanContextAccessor();
+            var accessor = new SpanAccessor();
 
-            Assert.Null(accessor.SpanContext);
+            Assert.Null(accessor.Span);
         }
 
         [Fact]
         public void Returns_context_in_sync_method()
         {
-            var accessor = new SpanContextAccessor();
-            var spanContext = new TestSpanContext();
+            var accessor = new SpanAccessor();
+            var span = GetSpan();
 
-            accessor.SpanContext = spanContext;
+            accessor.Span = span;
 
-            Assert.Same(spanContext, accessor.SpanContext);
+            Assert.Same(span, accessor.Span);
         }
 
         [Fact]
         public void Returns_context_in_sync_call()
         {
-            var accessor = new SpanContextAccessor();
-            var spanContext = new TestSpanContext();
+            var accessor = new SpanAccessor();
+            var span = GetSpan();
 
-            accessor.SpanContext = spanContext;
+            accessor.Span = span;
 
             var resultContext = CallSync(accessor);
 
-            Assert.Same(spanContext, resultContext);
+            Assert.Same(span, resultContext);
         }
 
         [Fact]
         public async Task Returns_context_in_async_call()
         {
-            var accessor = new SpanContextAccessor();
-            var spanContext = new TestSpanContext();
+            var accessor = new SpanAccessor();
+            var span = GetSpan();
 
-            accessor.SpanContext = spanContext;
+            accessor.Span = span;
 
             var resultContext = await CallAsync(accessor);
 
-            Assert.Same(spanContext, resultContext);
+            Assert.Same(span, resultContext);
         }
     }
 }

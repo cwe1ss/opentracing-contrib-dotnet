@@ -8,17 +8,17 @@ using System.Threading;
 
 namespace OpenTracing.Contrib
 {
-    public class SpanContextAccessor : ISpanContextAccessor
+    public class SpanAccessor : ISpanAccessor
     {
 #if NET451
-        private static readonly string LogicalDataKey = "__ISpanContext_Current__" + AppDomain.CurrentDomain.Id;
+        private static readonly string LogicalDataKey = "__ISpan_Current__" + AppDomain.CurrentDomain.Id;
 
-        public ISpanContext SpanContext
+        public ISpan Span
         {
             get
             {
                 var handle = CallContext.LogicalGetData(LogicalDataKey) as ObjectHandle;
-                return handle?.Unwrap() as ISpanContext;
+                return handle?.Unwrap() as ISpan;
             }
             set
             {
@@ -27,16 +27,16 @@ namespace OpenTracing.Contrib
         }
 
 #elif NETSTANDARD1_3
-        private AsyncLocal<ISpanContext> _currentSpanContext = new AsyncLocal<ISpanContext>();
-        public ISpanContext SpanContext
+        private AsyncLocal<ISpan> _currentSpan = new AsyncLocal<ISpan>();
+        public ISpan Span
         {
             get
             {
-                return _currentSpanContext.Value;
+                return _currentSpan.Value;
             }
             set
             {
-                _currentSpanContext.Value = value;
+                _currentSpan.Value = value;
             }
         }
 #endif

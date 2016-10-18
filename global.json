@@ -2,6 +2,9 @@
   "projects": [
       "src",
       "test",
-      "../opentracing-csharp/src"
+      "samples",
+
+      "../opentracing-csharp/src",
+      "../../openzipkin/zipkin-csharp/src"
   ]
 }

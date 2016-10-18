@@ -30,7 +30,7 @@ namespace OpenTracing.Contrib.AspNetCore
         {
             foreach (var kvp in _headers)
             {
-                yield return new KeyValuePair<string, string>(kvp.Key, kvp.ToString());
+                yield return new KeyValuePair<string, string>(kvp.Key, kvp.Value);
             }
         }
 

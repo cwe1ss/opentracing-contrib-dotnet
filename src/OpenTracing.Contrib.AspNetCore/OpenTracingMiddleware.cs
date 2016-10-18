@@ -16,7 +16,7 @@ namespace OpenTracing.Contrib.AspNetCore
         private readonly RequestDelegate _next;
         private readonly ITracer _tracer;
         private readonly IIncomingHttpOperationName _operationName;
-        private readonly ISpanContextAccessor _spanContextAccessor;
+        private readonly ISpanAccessor _spanAccessor;
         private readonly ILogger _logger;
 
         public OpenTracingMiddleware(
@@ -24,7 +24,7 @@ namespace OpenTracing.Contrib.AspNetCore
             ILoggerFactory loggerFactory,
             ITracer tracer,
             IIncomingHttpOperationName operationName,
-            ISpanContextAccessor spanContextAccessor = null)
+            ISpanAccessor spanAccessor = null)
         {
             if (next == null)
                 throw new ArgumentNullException(nameof(next));
@@ -41,7 +41,7 @@ namespace OpenTracing.Contrib.AspNetCore
             _next = next;
             _tracer = tracer;
             _operationName = operationName;
-            _spanContextAccessor = spanContextAccessor;
+            _spanAccessor = spanAccessor;
             _logger = loggerFactory.CreateLogger<OpenTracingMiddleware>();
         }
 
@@ -54,11 +54,11 @@ namespace OpenTracing.Contrib.AspNetCore
             {
                 span = StartSpan(extractedSpanContext, context.Request);
 
-                // Save span context for in-process propagation.
-                context.Items[typeof(ISpanContext)] = span.Context;
-                if (_spanContextAccessor != null)
+                // Save span for in-process propagation.
+                context.Items[typeof(ISpan)] = span;
+                if (_spanAccessor != null)
                 {
-                    _spanContextAccessor.SpanContext = span.Context;
+                    _spanAccessor.Span = span;
                 }
 
                 await _next(context);

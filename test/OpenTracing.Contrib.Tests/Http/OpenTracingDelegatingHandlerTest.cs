@@ -18,9 +18,9 @@ namespace OpenTracing.Contrib.Tests.Http
         {
             public TestOpenTracingDelegatingHandler(
                 ITracer tracer,
-                ISpanContextAccessor spanContextAccessor,
+                ISpanAccessor spanAccessor,
                 Func<HttpRequestMessage, HttpResponseMessage> callback = null)
-                : base(tracer, spanContextAccessor)
+                : base(tracer, spanAccessor)
             {
                 InnerHandler = new CallbackMessageHandler(callback);
             }
@@ -55,7 +55,7 @@ namespace OpenTracing.Contrib.Tests.Http
         public void Ctor_throws_if_parameters_missing()
         {
             var tracer = new TestTracer();
-            var contextAccessor = new SpanContextAccessor();
+            var contextAccessor = new SpanAccessor();
 
             Assert.Throws<ArgumentNullException>(() => new OpenTracingDelegatingHandler(null, contextAccessor));
             Assert.Throws<ArgumentNullException>(() => new OpenTracingDelegatingHandler(tracer, null));
@@ -65,7 +65,7 @@ namespace OpenTracing.Contrib.Tests.Http
         public async Task SendAsync_does_not_create_span_if_no_parent()
         {
             var tracer = new TestTracer();
-            var contextAccessor = new SpanContextAccessor();
+            var contextAccessor = new SpanAccessor();
             var handler = new TestOpenTracingDelegatingHandler(tracer, contextAccessor);
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
 
@@ -78,13 +78,13 @@ namespace OpenTracing.Contrib.Tests.Http
         public async Task SendAsync_creates_span_if_parent()
         {
             var tracer = new TestTracer();
-            var contextAccessor = new SpanContextAccessor();
+            var contextAccessor = new SpanAccessor();
             var handler = new TestOpenTracingDelegatingHandler(tracer, contextAccessor);
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
 
             // Create parent span
             var parentSpan = tracer.BuildSpan("parent").Start();
-            contextAccessor.SpanContext = parentSpan.Context;
+            contextAccessor.Span = parentSpan;
 
             // Call API
             var response = await handler.SendAsync(request);
@@ -96,13 +96,13 @@ namespace OpenTracing.Contrib.Tests.Http
         public async Task Success_span_is_child_of_parent()
         {
             var tracer = new TestTracer();
-            var contextAccessor = new SpanContextAccessor();
+            var contextAccessor = new SpanAccessor();
             var handler = new TestOpenTracingDelegatingHandler(tracer, contextAccessor);
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
 
             // Create parent span
             var parentSpan = tracer.BuildSpan("parent").Start();
-            contextAccessor.SpanContext = parentSpan.Context;
+            contextAccessor.Span = parentSpan;
 
             // Call API
             var response = await handler.SendAsync(request);
@@ -118,13 +118,13 @@ namespace OpenTracing.Contrib.Tests.Http
         public async Task Success_span_has_tags()
         {
             var tracer = new TestTracer();
-            var contextAccessor = new SpanContextAccessor();
+            var contextAccessor = new SpanAccessor();
             var handler = new TestOpenTracingDelegatingHandler(tracer, contextAccessor);
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
 
             // Create parent span
             var parentSpan = tracer.BuildSpan("parent").Start();
-            contextAccessor.SpanContext = parentSpan.Context;
+            contextAccessor.Span = parentSpan;
 
             // Call API
             var response = await handler.SendAsync(request);
@@ -147,13 +147,13 @@ namespace OpenTracing.Contrib.Tests.Http
             });
 
             var tracer = new TestTracer();
-            var contextAccessor = new SpanContextAccessor();
+            var contextAccessor = new SpanAccessor();
             var handler = new TestOpenTracingDelegatingHandler(tracer, contextAccessor, callback);
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
 
             // Create parent span
             var parentSpan = tracer.BuildSpan("parent").Start();
-            contextAccessor.SpanContext = parentSpan.Context;
+            contextAccessor.Span = parentSpan;
 
             // Call API and catch exception
             await Assert.ThrowsAsync<InvalidOperationException>(() => handler.SendAsync(request));
@@ -170,13 +170,13 @@ namespace OpenTracing.Contrib.Tests.Http
             });
 
             var tracer = new TestTracer();
-            var contextAccessor = new SpanContextAccessor();
+            var contextAccessor = new SpanAccessor();
             var handler = new TestOpenTracingDelegatingHandler(tracer, contextAccessor, callback);
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
 
             // Create parent span
             var parentSpan = tracer.BuildSpan("parent").Start();
-            contextAccessor.SpanContext = parentSpan.Context;
+            contextAccessor.Span = parentSpan;
 
             // Call API and catch exception
             await Assert.ThrowsAsync<InvalidOperationException>(() => handler.SendAsync(request));
@@ -192,13 +192,13 @@ namespace OpenTracing.Contrib.Tests.Http
         public async Task SendAsync_calls_Inject()
         {
             var tracer = new TestTracer();
-            var contextAccessor = new SpanContextAccessor();
+            var contextAccessor = new SpanAccessor();
             var handler = new TestOpenTracingDelegatingHandler(tracer, contextAccessor);
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
 
             // Create parent span
             var parentSpan = tracer.BuildSpan("parent").Start();
-            contextAccessor.SpanContext = parentSpan.Context;
+            contextAccessor.Span = parentSpan;
 
             // Call API
             var response = await handler.SendAsync(request);

@@ -18,30 +18,30 @@ namespace OpenTracing.Contrib.Http
         private static IOutgoingHttpOperationName DefaultOperationName = new DefaultOutgoingHttpOperationName();
 
         private readonly ITracer _tracer;
-        private readonly ISpanContextAccessor _spanContextAccessor;
+        private readonly ISpanAccessor _spanAccessor;
         private readonly IOutgoingHttpOperationName _operationName;
 
-        public OpenTracingDelegatingHandler(ITracer tracer, ISpanContextAccessor spanContextAccessor)
-            : this(tracer, spanContextAccessor, DefaultOperationName)
+        public OpenTracingDelegatingHandler(ITracer tracer, ISpanAccessor spanAccessor)
+            : this(tracer, spanAccessor, DefaultOperationName)
         {
         }
 
         public OpenTracingDelegatingHandler(
             ITracer tracer,
-            ISpanContextAccessor spanContextAccessor,
+            ISpanAccessor spanAccessor,
             IOutgoingHttpOperationName operationName)
         {
             if (tracer == null)
                 throw new ArgumentNullException(nameof(tracer));
 
-            if (spanContextAccessor == null)
-                throw new ArgumentNullException(nameof(spanContextAccessor));
+            if (spanAccessor == null)
+                throw new ArgumentNullException(nameof(spanAccessor));
 
             if (operationName == null)
                 throw new ArgumentNullException(nameof(operationName));
 
             _tracer = tracer;
-            _spanContextAccessor = spanContextAccessor;
+            _spanAccessor = spanAccessor;
             _operationName = operationName;
         }
 
@@ -81,7 +81,7 @@ namespace OpenTracing.Contrib.Http
             // A http request is always considered to be a child of some parent operation.
             // If there's no parent, we don't start a new span.
 
-            ISpanContext parent = _spanContextAccessor.SpanContext;
+            ISpanContext parent = _spanAccessor.Span?.Context;
             if (parent == null)
                 return null;
 

@@ -7,6 +7,7 @@ namespace OpenTracing.Contrib
     {
         private const string ErrorMessage = "error_message";
         private const string ErrorStacktrace = "error_stacktrace";
+        private const string ErrorType = "error_type";
         private const string ErrorInner = "error_inner";
         private const string ErrorData = "error_data";
         private const string ErrorHResult = "error_hresult";
@@ -19,6 +20,7 @@ namespace OpenTracing.Contrib
             span.SetTag(Tags.Error, true);
 
             span.SetTag(ErrorMessage, ex.Message);
+            span.SetTag(ErrorType, ex.GetType().FullName);
             span.SetTag(ErrorStacktrace, ex.StackTrace);
 
             if (ex.InnerException != null)
