@@ -63,34 +63,6 @@ namespace OpenTracing.Contrib.ZipkinTracer
             return this;
         }
 
-        public string GetBaggageItem(string key)
-        {
-            return TypedContext.GetBaggageItem(key);
-        }
-
-        public ISpan SetBaggageItem(string key, string value)
-        {
-            TypedContext.SetBaggageItem(key, value);
-            return this;
-        }
-
-        public ISpan LogEvent(string eventName, object payload = null)
-        {
-            // TODO @cweiss change to K:V logging
-
-            // This will throw if a span was started with a user-supplied timestamp!
-            var timestamp = _duration.GetUtcNow();
-
-            return AddAnnotation(timestamp, eventName);
-        }
-
-        public ISpan LogEvent(DateTime timestamp, string eventName, object payload = null)
-        {
-            // TODO @cweiss change to K:V logging
-
-            return AddAnnotation(timestamp, eventName);
-        }
-
         public ISpan SetTag(string key, string value)
         {
             return AddTag(key, value);
@@ -101,12 +73,68 @@ namespace OpenTracing.Contrib.ZipkinTracer
             return AddTag(key, value);
         }
 
+        public ISpan SetTag(string key, int value)
+        {
+            return AddTag(key, value);
+        }
+
         public ISpan SetTag(string key, bool value)
         {
             return AddTag(key, value);
         }
 
-        public void Finish(DateTime? finishTimestamp = null)
+        public ISpan Log(IEnumerable<KeyValuePair<string, object>> fields)
+        {
+            return Log(_duration.GetUtcNow(), fields);
+        }
+
+        public ISpan Log(DateTime timestamp, IEnumerable<KeyValuePair<string, object>> fields)
+        {
+            if (fields == null)
+                return this;
+
+            // TODO @cweiss How should we store fields?
+            string value = string.Join(", ", fields.Select(x => $"{x.Key}:{x.Value}"));
+            return AddAnnotation(timestamp, value);
+        }
+
+        public ISpan Log(string eventName)
+        {
+            return AddAnnotation(_duration.GetUtcNow(), eventName);
+        }
+
+        public ISpan Log(DateTime timestamp, string eventName)
+        {
+            return AddAnnotation(timestamp, eventName);
+        }
+
+        public ISpan SetBaggageItem(string key, string value)
+        {
+            TypedContext.SetBaggageItem(key, value);
+            return this;
+        }
+
+        public string GetBaggageItem(string key)
+        {
+            return TypedContext.GetBaggageItem(key);
+        }
+
+        public void Finish()
+        {
+            FinishInternal(null);
+        }
+
+        public void Finish(DateTime finishTimestamp)
+        {
+            FinishInternal(finishTimestamp);
+        }
+
+        public void Dispose()
+        {
+            Finish();
+        }
+
+        private void FinishInternal(DateTime? finishTimestamp)
         {
             if (FinishTimestamp.HasValue)
                 return;
@@ -114,11 +142,6 @@ namespace OpenTracing.Contrib.ZipkinTracer
             _duration.Finish(finishTimestamp);
 
             _tracer.ReportSpan(this);
-        }
-
-        public void Dispose()
-        {
-            Finish();
         }
 
         private ISpan AddAnnotation(DateTime timestamp, string eventName)

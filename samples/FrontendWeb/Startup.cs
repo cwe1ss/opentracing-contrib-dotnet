@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using OpenTracing;
 using OpenTracing.Contrib;
 using OpenTracing.Contrib.Http;
-using OpenTracing.Contrib.ZipkinTracer;
 
 namespace Samples.FrontendWeb
 {

@@ -13,6 +13,7 @@ namespace OpenTracing.Contrib.Testing
         public DateTime? FinishTimestamp { get; private set; }
         public IList<KeyValuePair<string, ISpanContext>> References { get; }
         public IDictionary<string, object> Tags { get; }
+        public IList<LogData> Logs { get; }
 
         public TestSpan(
             TestTracer tracer,
@@ -28,6 +29,7 @@ namespace OpenTracing.Contrib.Testing
             OperationName = operationName;
             References = references ?? new List<KeyValuePair<string, ISpanContext>>();
             Tags = tags ?? new Dictionary<string, object>();
+            Logs = new List<LogData>();
         }
 
         public ISpan SetOperationName(string operationName)
@@ -48,20 +50,40 @@ namespace OpenTracing.Contrib.Testing
             return this;
         }
 
+        public ISpan SetTag(string key, int value)
+        {
+            Tags[key] = value;
+            return this;
+        }
+
         public ISpan SetTag(string key, string value)
         {
             Tags[key] = value;
             return this;
         }
 
-        public ISpan LogEvent(string eventName, object payload = null)
+        public ISpan Log(IEnumerable<KeyValuePair<string, object>> fields)
         {
-            throw new NotImplementedException("will be removed in 0.9");
+            return Log(DateTime.UtcNow, fields);
         }
 
-        public ISpan LogEvent(DateTime timestamp, string eventName, object payload = null)
+        public ISpan Log(DateTime timestamp, IEnumerable<KeyValuePair<string, object>> fields)
         {
-            throw new NotImplementedException("will be removed in 0.9");
+            if (fields == null)
+                return this;
+
+            Logs.Add(new LogData(timestamp, fields));
+            return this;
+        }
+
+        public ISpan Log(string eventName)
+        {
+            return Log(DateTime.UtcNow, eventName);
+        }
+
+        public ISpan Log(DateTime timestamp, string eventName)
+        {
+            return Log(timestamp, new Dictionary<string, object> { { "event", eventName }});
         }
 
         public ISpan SetBaggageItem(string key, string value)
@@ -75,15 +97,32 @@ namespace OpenTracing.Contrib.Testing
             return TestContext.GetBaggageItem(key);
         }
 
-        public void Finish(DateTime? finishTimestamp = null)
+        public void Finish()
         {
-            FinishTimestamp = finishTimestamp ?? DateTime.UtcNow;
+            Finish(DateTime.UtcNow);
+        }
+
+        public void Finish(DateTime finishTimestamp)
+        {
+            FinishTimestamp = finishTimestamp;
             Tracer.FinishedSpans.Add(this);
         }
 
         public void Dispose()
         {
             Finish();
+        }
+
+        public class LogData
+        {
+            public DateTime Timestamp { get; }
+            public IEnumerable<KeyValuePair<string, object>> Fields { get; }
+
+            public LogData(DateTime timestamp, IEnumerable<KeyValuePair<string, object>> fields)
+            {
+                Timestamp = timestamp;
+                Fields = fields;
+            }
         }
     }
 }

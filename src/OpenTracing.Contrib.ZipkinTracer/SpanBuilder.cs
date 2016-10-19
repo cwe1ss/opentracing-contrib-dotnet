@@ -81,6 +81,11 @@ namespace OpenTracing.Contrib.ZipkinTracer
             return AddTag(key, value);
         }
 
+        public ISpanBuilder WithTag(string key, int value)
+        {
+            return AddTag(key, value);
+        }
+
         public ISpanBuilder WithTag(string key, bool value)
         {
             return AddTag(key, value);

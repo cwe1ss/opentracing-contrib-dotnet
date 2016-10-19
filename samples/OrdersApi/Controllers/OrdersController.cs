@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Constants;
@@ -26,7 +27,14 @@ namespace Samples.OrdersApi.Controllers
             var customer = await GetCustomer(cmd.CustomerId.Value);
 
             var span = HttpContext.GetCurrentSpan();
-            span.LogEvent("OrderPlaced", $"Customer:{cmd.CustomerId}({customer.Name});ItemNumber:{cmd.ItemNumber};Quantity:{cmd.Quantity}");
+
+            span.Log(new Dictionary<string, object> {
+                { "event", "OrderPlaced" },
+                { "customer", cmd.CustomerId },
+                { "customer_name", customer.Name },
+                { "item_number", cmd.ItemNumber },
+                { "quantity", cmd.Quantity }
+            });
 
             return Ok();
         }

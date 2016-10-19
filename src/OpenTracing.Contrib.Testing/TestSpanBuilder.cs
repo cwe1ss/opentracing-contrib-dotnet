@@ -69,6 +69,12 @@ namespace OpenTracing.Contrib.Testing
             return this;
         }
 
+        public ISpanBuilder WithTag(string key, int value)
+        {
+            Tags[key] = value;
+            return this;
+        }
+
         public ISpanBuilder WithTag(string key, string value)
         {
             Tags[key] = value;
