@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using Newtonsoft.Json;
+using OpenTracing.Contrib.TracerAbstractions;
 using OpenTracing.Contrib.ZipkinTracer.Json;
 
 namespace OpenTracing.Contrib.ZipkinTracer.Reporter
@@ -10,7 +11,7 @@ namespace OpenTracing.Contrib.ZipkinTracer.Reporter
     /// A very awful reporter that sends spans immediately to the default Zipkin port on the local machine using JSON.
     /// You better not use it in production. :)
     /// </summary>
-    public class AwfulPoCReporter : IReporter
+    public class AwfulPoCReporter : ISpanReporter
     {
         private readonly HttpClient _httpClient;
 
@@ -20,13 +21,15 @@ namespace OpenTracing.Contrib.ZipkinTracer.Reporter
             _httpClient.BaseAddress = new Uri("http://localhost:9411/");
         }
 
-        public void Report(Span span)
+        public void ReportSpan(ISpan span)
         {
             if (span == null)
                 throw new ArgumentNullException(nameof(span));
 
+            ZipkinSpan typedSpan = (ZipkinSpan)span;
+
             List<JsonSpan> jsonSpanList = new List<JsonSpan>();
-            jsonSpanList.Add(new JsonSpan(span));
+            jsonSpanList.Add(new JsonSpan(typedSpan));
 
             string jsonString = JsonConvert.SerializeObject(jsonSpanList);
 

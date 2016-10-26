@@ -1,17 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using OpenTracing.Contrib.TracerAbstractions;
 using OpenTracing.Contrib.ZipkinTracer.Propagation;
 using OpenTracing.Propagation;
 
 namespace OpenTracing.Contrib.ZipkinTracer
 {
-    public class ZipkinTracerOptions
+    public class ZipkinTracerOptions : TracerOptions
     {
         /// <summary>
         /// This name will be used as the service name in the Zipkin UI.
         /// </summary>
         public string ServiceName { get; set; }
-
-        public Dictionary<string, IPropagator> Propagators { get; } = new Dictionary<string, IPropagator>();
 
         public ZipkinTracerOptions()
         {

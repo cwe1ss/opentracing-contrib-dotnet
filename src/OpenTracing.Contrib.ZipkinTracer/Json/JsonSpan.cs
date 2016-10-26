@@ -7,7 +7,7 @@ namespace OpenTracing.Contrib.ZipkinTracer.Json
 {
     internal class JsonSpan
     {
-        private readonly Span _span;
+        private readonly ZipkinSpan _span;
 
         [JsonProperty("traceId")]
         public string TraceId => _span.TypedContext.TraceId.ToString("x4");
@@ -35,7 +35,7 @@ namespace OpenTracing.Contrib.ZipkinTracer.Json
         public IEnumerable<JsonBinaryAnnotation> BinaryAnnotations =>
             _span.BinaryAnnotations.Select(annotation => new JsonBinaryAnnotation(annotation));
 
-        public JsonSpan(Span span)
+        public JsonSpan(ZipkinSpan span)
         {
             if (span == null)
                 throw new ArgumentNullException(nameof(span));

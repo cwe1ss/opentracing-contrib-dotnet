@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using OpenTracing.Contrib.TracerAbstractions;
 using OpenTracing.Propagation;
 
 namespace OpenTracing.Contrib.ZipkinTracer.Propagation
@@ -19,8 +20,10 @@ namespace OpenTracing.Contrib.ZipkinTracer.Propagation
 
         // TODO @cweiss Is URL Encoding required with .NET header types?
 
-        public void Inject(SpanContext context, object carrier)
+        public void Inject(ISpanContext untypedContext, object carrier)
         {
+            var context = (ZipkinSpanContext)untypedContext;
+
             var textMap = carrier as ITextMap;
             if (textMap == null)
                 throw new InvalidOperationException($"Carrier must be a {nameof(ITextMap)}");
@@ -31,7 +34,7 @@ namespace OpenTracing.Contrib.ZipkinTracer.Propagation
             textMap.Set(SpanIdHeader, context.SpanId.ToString());
             textMap.Set(SampledHeader, context.Sampled ? SampledTrue : SampledFalse);
 
-            // TODO do we have to send parent id?? 
+            // TODO do we have to send parent id??
             if (context.ParentId.HasValue)
                 textMap.Set(ParentIdHeader, context.ParentId.Value.ToString());
 
@@ -42,7 +45,7 @@ namespace OpenTracing.Contrib.ZipkinTracer.Propagation
             }
         }
 
-        public SpanContext Extract(object carrier)
+        public ISpanContext Extract(object carrier)
         {
             var textMap = carrier as ITextMap;
             if (textMap == null)
@@ -85,7 +88,7 @@ namespace OpenTracing.Contrib.ZipkinTracer.Propagation
             if (traceId == 0 || spanId == 0)
                 return null;
 
-            return new SpanContext(traceId, spanId, parentId == 0 ? (ulong?)null : parentId, baggage);
+            return new ZipkinSpanContext(traceId, spanId, parentId == 0 ? (ulong?)null : parentId, baggage);
         }
     }
 }

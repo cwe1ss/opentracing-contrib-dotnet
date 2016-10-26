@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using OpenTracing;
+using OpenTracing.Contrib.TracerAbstractions;
 using OpenTracing.Contrib.ZipkinTracer;
 using OpenTracing.Contrib.ZipkinTracer.Reporter;
 
@@ -30,8 +31,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton(options);
             services.AddSingleton<ITracer, ZipkinTracer>();
 
-            services.TryAddSingleton<IReporter, AwfulPoCReporter>();
-            
+            services.TryAddSingleton<ISpanReporter, AwfulPoCReporter>();
+
             return services;
         }
     }
