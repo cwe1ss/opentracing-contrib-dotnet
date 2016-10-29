@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace OpenTracing.Contrib.TracerAbstractions
 {
     public abstract class SpanBase : ISpan
     {
-        private readonly ISpanReporter _reporter;
+        private const string EventLogKey = "event";
+
+        private readonly TracerBase _tracer;
         private readonly SpanContextBase _typedContext;
 
         protected SpanDuration Duration { get; }
@@ -17,10 +20,10 @@ namespace OpenTracing.Contrib.TracerAbstractions
         public DateTime StartTimestamp => Duration.StartTimestamp;
         public DateTime? FinishTimestamp { get; private set; }
 
-        protected SpanBase(ISpanReporter reporter, SpanContextBase spanContext, string operationName, DateTime? startTimestamp)
+        protected SpanBase(TracerBase tracer, SpanContextBase spanContext, string operationName, DateTime? startTimestamp)
         {
-            if (reporter == null)
-                throw new ArgumentNullException(nameof(reporter));
+            if (tracer == null)
+                throw new ArgumentNullException(nameof(tracer));
 
             if (spanContext == null)
                 throw new ArgumentNullException(nameof(spanContext));
@@ -28,7 +31,7 @@ namespace OpenTracing.Contrib.TracerAbstractions
             if (string.IsNullOrWhiteSpace(operationName))
                 throw new ArgumentNullException(nameof(operationName));
 
-            _reporter = reporter;
+            _tracer = tracer;
             _typedContext = spanContext;
             OperationName = operationName;
             Duration = new SpanDuration(spanContext.Clock, startTimestamp);
@@ -53,7 +56,10 @@ namespace OpenTracing.Contrib.TracerAbstractions
 
         public ISpan Log(string eventName)
         {
-            return Log(Duration.GetUtcNow(), eventName);
+            if (string.IsNullOrWhiteSpace(eventName))
+                throw new ArgumentNullException(nameof(eventName));
+
+            return LogHelper(null, new Dictionary<string, object> { { EventLogKey, eventName } });
         }
 
         public ISpan Log(DateTime timestamp, string eventName)
@@ -61,27 +67,34 @@ namespace OpenTracing.Contrib.TracerAbstractions
             if (string.IsNullOrWhiteSpace(eventName))
                 throw new ArgumentNullException(nameof(eventName));
 
-            Duration.ValidateTimestamp(timestamp);
-
-            LogInternal(timestamp, new Dictionary<string, object> { { "event", eventName } });
-            return this;
+            return LogHelper(timestamp, new Dictionary<string, object> { { EventLogKey, eventName } });
         }
 
         public ISpan Log(IEnumerable<KeyValuePair<string, object>> fields)
         {
-            return Log(Duration.GetUtcNow(), fields);
+            return LogHelper(null, fields);
         }
 
         public ISpan Log(DateTime timestamp, IEnumerable<KeyValuePair<string, object>> fields)
         {
-            if (fields == null)
+            return LogHelper(timestamp, fields);
+        }
+
+        private ISpan LogHelper(DateTime? timestamp, IEnumerable<KeyValuePair<string, object>> fields)
+        {
+            if (fields == null || !fields.Any())
                 return this;
 
-            Duration.ValidateTimestamp(timestamp);
+            DateTime validatedTimestamp = Duration.GetTimestamp(timestamp);
 
-            LogInternal(timestamp, fields);
+            LogInternal(validatedTimestamp, fields);
             return this;
         }
+
+        /// <summary>
+        /// This will only be called if the timestamp is valid and if <paramref name="fields"/> contains enries.
+        /// </summary>
+        protected abstract void LogInternal(DateTime timestamp, IEnumerable<KeyValuePair<string, object>> fields);
 
         public ISpan SetBaggageItem(string key, string value)
         {
@@ -109,19 +122,14 @@ namespace OpenTracing.Contrib.TracerAbstractions
             FinishInternal(null);
         }
 
-        /// <summary>
-        /// This will only be called if the timestamp is valid and if fields is not null.
-        /// </summary>
-        protected abstract void LogInternal(DateTime timestamp, IEnumerable<KeyValuePair<string, object>> fields);
-
         private void FinishInternal(DateTime? finishTimestamp)
         {
             if (FinishTimestamp.HasValue)
                 return;
 
-            FinishTimestamp = Duration.Finish(finishTimestamp);
+            FinishTimestamp = Duration.GetTimestamp(finishTimestamp);
 
-            _reporter.ReportSpan(this);
+            _tracer.ReportSpan(this);
         }
     }
 }

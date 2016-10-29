@@ -21,13 +21,16 @@ namespace OpenTracing.Contrib.ZipkinTracer
         {
             ZipkinSpanContext context = GetOrCreateContext();
 
-            return new ZipkinSpan(
+            var span = new ZipkinSpan(
                 _tracer,
                 context,
                 OperationName,
-                StartTimestamp,
-                AllTags // TODO @cweiss use separate type tags
+                StartTimestamp
             );
+
+            SetSpanTags(span);
+
+            return span;
         }
 
         private ZipkinSpanContext GetOrCreateContext()
@@ -46,14 +49,17 @@ namespace OpenTracing.Contrib.ZipkinTracer
             {
                 // This is a child-span!
 
-                var parent = (ZipkinSpanContext) SpanReferences.First().ReferencedContext;
+                var parent = (ZipkinSpanContext)SpanReferences.First().ReferencedContext;
                 return parent.CreateChild(spanId);
             }
 
             // This is a root span!
 
+            // TODO @cweiss Sampling important here?!?
+            bool sampled = IntTags.Any(x => x.Key == Tags.SamplingPriority && x.Value == 1);
+
             // TraceId and SpanId may be equal: http://zipkin.io/pages/instrumenting.html
-            return new ZipkinSpanContext(spanId, spanId, parentId: null, baggage: null);
+            return new ZipkinSpanContext(spanId, spanId, parentId: null, sampled: sampled, baggage: null);
         }
     }
 }

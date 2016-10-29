@@ -1,13 +1,14 @@
 using System;
 using System.Net;
 using OpenTracing.Contrib.TracerAbstractions;
+using OpenTracing.Contrib.ZipkinTracer.Reporter;
 
 namespace OpenTracing.Contrib.ZipkinTracer
 {
     public class ZipkinTracer : TracerBase
     {
         private readonly ZipkinTracerOptions _options;
-        public ISpanReporter Reporter { get; }
+        private readonly ISpanReporter _reporter;
 
         public Endpoint Endpoint { get; }
 
@@ -18,8 +19,7 @@ namespace OpenTracing.Contrib.ZipkinTracer
                 throw new ArgumentNullException(nameof(reporter));
 
             _options = options;
-
-            Reporter = reporter;
+            _reporter = reporter;
 
             // TODO @cweiss !!!
             Endpoint = new Endpoint
@@ -35,6 +35,9 @@ namespace OpenTracing.Contrib.ZipkinTracer
             return new ZipkinSpanBuilder(this, operationName);
         }
 
-
+        public override void ReportSpan(SpanBase span)
+        {
+            _reporter.ReportSpan((ZipkinSpan)span);
+        }
     }
 }

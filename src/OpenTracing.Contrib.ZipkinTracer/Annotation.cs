@@ -10,11 +10,11 @@ namespace OpenTracing.Contrib.ZipkinTracer
 
         public string Value { get; }
 
-        public Annotation(Endpoint endpoint, string value, DateTime timestamp)
+        public Annotation(Endpoint endpoint, DateTime timestamp, string value)
         {
             Endpoint = endpoint;
-            Value = value;
             Timestamp = timestamp;
+            Value = value;
         }
     }
 }

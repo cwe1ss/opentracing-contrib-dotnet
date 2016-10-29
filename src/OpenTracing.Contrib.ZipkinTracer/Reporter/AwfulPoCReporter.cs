@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using Newtonsoft.Json;
-using OpenTracing.Contrib.TracerAbstractions;
 using OpenTracing.Contrib.ZipkinTracer.Json;
 
 namespace OpenTracing.Contrib.ZipkinTracer.Reporter
@@ -21,15 +20,13 @@ namespace OpenTracing.Contrib.ZipkinTracer.Reporter
             _httpClient.BaseAddress = new Uri("http://localhost:9411/");
         }
 
-        public void ReportSpan(ISpan span)
+        public void ReportSpan(ZipkinSpan span)
         {
             if (span == null)
                 throw new ArgumentNullException(nameof(span));
 
-            ZipkinSpan typedSpan = (ZipkinSpan)span;
-
             List<JsonSpan> jsonSpanList = new List<JsonSpan>();
-            jsonSpanList.Add(new JsonSpan(typedSpan));
+            jsonSpanList.Add(new JsonSpan(span));
 
             string jsonString = JsonConvert.SerializeObject(jsonSpanList);
 

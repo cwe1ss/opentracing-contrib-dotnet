@@ -8,11 +8,11 @@ namespace OpenTracing.Contrib.TracerAbstractions
     /// </summary>
     public struct SpanDuration
     {
-        private readonly HighResClock _clock;
+        private readonly IClock _clock;
 
         public DateTime StartTimestamp { get; }
 
-        public SpanDuration(HighResClock clock, DateTime? userSuppliedStartTimestamp)
+        public SpanDuration(IClock clock, DateTime? userSuppliedStartTimestamp)
         {
             if (clock == null)
                 throw new ArgumentNullException(nameof(clock));
@@ -33,48 +33,31 @@ namespace OpenTracing.Contrib.TracerAbstractions
             }
         }
 
-        public DateTime GetUtcNow()
+        public DateTime GetTimestamp(DateTime? userSuppliedTimestamp)
         {
             if (_clock == null)
             {
-                throw new InvalidOperationException(
-                    "There was an attempt to get the current system timestamp from a span " +
-                    "that has been started with a user-supplied timestamp. " +
-                    "All events for such a span must also provide a user-supplied timestamp.");
-            }
-
-            return _clock.UtcNow;
-        }
-
-        public void ValidateTimestamp(DateTime timestamp)
-        {
-            EnsureUtc(timestamp);
-            EnsureGreaterThanStart(timestamp);
-        }
-
-        public DateTime Finish(DateTime? userSuppliedFinishTimestamp)
-        {
-            if (_clock == null)
-            {
-                if (!userSuppliedFinishTimestamp.HasValue)
+                if (!userSuppliedTimestamp.HasValue)
                 {
                     throw new InvalidOperationException(
-                        "The span may not be finished with a system timestamp " +
-                        "if it was started with a user-supplied timestamp.");
+                        "There was an attempt to get the current system timestamp from a span " +
+                        "that has been started with a user-supplied timestamp. " +
+                        "All events for such a span must provide a user-supplied timestamp.");
                 }
 
-                EnsureUtc(userSuppliedFinishTimestamp.Value);
-                EnsureGreaterThanStart(userSuppliedFinishTimestamp.Value);
+                EnsureUtc(userSuppliedTimestamp.Value);
+                EnsureGreaterThanStart(userSuppliedTimestamp.Value);
 
-                return userSuppliedFinishTimestamp.Value;
+                return userSuppliedTimestamp.Value;
             }
             else
             {
-                if (userSuppliedFinishTimestamp.HasValue)
+                if (userSuppliedTimestamp.HasValue)
                 {
                     throw new InvalidOperationException(
-                        "The span may not be finished with a user-supplied timestamp " +
-                        "if it was started with a system timestamp.");
+                        "There was an attempt to use a user-supplied timestamp for a span " +
+                        "that has been started with a system timestamp. " +
+                        "All events for such a span must use a system timestamp.");
                 }
 
                 return _clock.UtcNow;

@@ -17,6 +17,8 @@ namespace OpenTracing.Contrib.TracerAbstractions
 
         public abstract ISpanBuilder BuildSpan(string operationName);
 
+        public abstract void ReportSpan(SpanBase span);
+
         public void Inject<TCarrier>(ISpanContext spanContext, Format<TCarrier> format, TCarrier carrier)
         {
             if (spanContext == null)

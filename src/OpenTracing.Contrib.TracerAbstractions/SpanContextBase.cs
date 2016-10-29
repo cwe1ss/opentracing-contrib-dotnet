@@ -12,12 +12,12 @@ namespace OpenTracing.Contrib.TracerAbstractions
         protected Dictionary<string, string> Baggage { get; private set; }
 
         /// <summary>
-        /// We need the same HighResDateTime instance for all spans in one request,
+        /// We need the same clock instance for all spans in one request,
         /// otherwise two spans could have overlapping/wrong start timestamps.
         /// </summary>
-        public HighResClock Clock { get; }
+        public IClock Clock { get; }
 
-        protected SpanContextBase(Dictionary<string, string> baggage, HighResClock clock)
+        protected SpanContextBase(Dictionary<string, string> baggage, IClock clock = null)
         {
             Clock = clock ?? new HighResClock();
 

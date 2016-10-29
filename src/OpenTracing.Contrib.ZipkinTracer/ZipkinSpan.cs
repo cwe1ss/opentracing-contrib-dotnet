@@ -21,19 +21,10 @@ namespace OpenTracing.Contrib.ZipkinTracer
             ZipkinTracer tracer,
             ZipkinSpanContext context,
             string operationName,
-            DateTime? startTimestamp,
-            IEnumerable<KeyValuePair<string, object>> tags)
-            : base(tracer?.Reporter, context, operationName, startTimestamp)
+            DateTime? startTimestamp)
+            : base(tracer, context, operationName, startTimestamp)
         {
             _endpoint = tracer.Endpoint;
-
-            if (tags != null)
-            {
-                foreach (var tag in tags)
-                {
-                    AddTag(tag.Key, tag.Value);
-                }
-            }
         }
 
         public override ISpan SetTag(string key, string value)
@@ -56,7 +47,7 @@ namespace OpenTracing.Contrib.ZipkinTracer
             return AddTag(key, value);
         }
 
-        protected override void LogInternal (DateTime timestamp, IEnumerable<KeyValuePair<string, object>> fields)
+        protected override void LogInternal(DateTime timestamp, IEnumerable<KeyValuePair<string, object>> fields)
         {
             // TODO @cweiss How should we store fields?
             string value = string.Join(", ", fields.Select(x => $"{x.Key}:{x.Value}"));
@@ -64,7 +55,7 @@ namespace OpenTracing.Contrib.ZipkinTracer
             if (_annotations == null)
                 _annotations = new List<Annotation>();
 
-            _annotations.Add(new Annotation(_endpoint, value, timestamp));
+            _annotations.Add(new Annotation(_endpoint, timestamp, value));
         }
 
         private ISpan AddTag(string key, object value)
@@ -101,7 +92,7 @@ namespace OpenTracing.Contrib.ZipkinTracer
                 if (_annotations == null)
                     _annotations = new List<Annotation>();
 
-                _annotations.Add(new Annotation(_endpoint, annotationValue, StartTimestamp));
+                _annotations.Add(new Annotation(_endpoint, StartTimestamp, annotationValue));
                 return true;
             }
 

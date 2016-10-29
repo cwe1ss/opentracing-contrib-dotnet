@@ -42,57 +42,6 @@ namespace OpenTracing.Contrib.TracerAbstractions
             get { return _stringTags ?? Enumerable.Empty<KeyValuePair<string, string>>(); }
         }
 
-        protected IEnumerable<KeyValuePair<string, object>> AllTags
-        {
-            get
-            {
-                // TODO @cweiss Remove this?
-
-                int capacity = (_boolTags?.Count ?? 0) + (_doubleTags?.Count ?? 0) + (_intTags?.Count ?? 0) + (_stringTags?.Count ?? 0);
-
-                if (capacity == 0)
-                {
-                    return Enumerable.Empty<KeyValuePair<string, object>>();
-                }
-
-                Dictionary<string, object> allTags = new Dictionary<string, object>(capacity);
-
-                if (_boolTags != null)
-                {
-                    foreach (var kvp in _boolTags)
-                    {
-                        allTags.Add(kvp.Key, kvp.Value);
-                    }
-                }
-
-                if (_doubleTags != null)
-                {
-                    foreach (var kvp in _doubleTags)
-                    {
-                        allTags.Add(kvp.Key, kvp.Value);
-                    }
-                }
-
-                if (_intTags != null)
-                {
-                    foreach (var kvp in _intTags)
-                    {
-                        allTags.Add(kvp.Key, kvp.Value);
-                    }
-                }
-
-                if (_stringTags != null)
-                {
-                    foreach (var kvp in _stringTags)
-                    {
-                        allTags.Add(kvp.Key, kvp.Value);
-                    }
-                }
-
-                return allTags;
-            }
-        }
-
         protected SpanBuilderBase(string operationName)
         {
             if (string.IsNullOrWhiteSpace(operationName))
@@ -200,5 +149,31 @@ namespace OpenTracing.Contrib.TracerAbstractions
         }
 
         protected abstract SpanBase CreateSpan();
+
+        protected void SetSpanTags(ISpan span)
+        {
+            if (span == null)
+                throw new ArgumentNullException(nameof(span));
+
+            foreach (var tag in BoolTags)
+            {
+                span.SetTag(tag.Key, tag.Value);
+            }
+
+            foreach (var tag in DoubleTags)
+            {
+                span.SetTag(tag.Key, tag.Value);
+            }
+
+            foreach (var tag in IntTags)
+            {
+                span.SetTag(tag.Key, tag.Value);
+            }
+
+            foreach (var tag in StringTags)
+            {
+                span.SetTag(tag.Key, tag.Value);
+            }
+        }
     }
 }

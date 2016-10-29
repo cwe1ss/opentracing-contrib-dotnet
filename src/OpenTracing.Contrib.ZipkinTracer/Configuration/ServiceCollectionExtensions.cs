@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using OpenTracing;
-using OpenTracing.Contrib.TracerAbstractions;
 using OpenTracing.Contrib.ZipkinTracer;
 using OpenTracing.Contrib.ZipkinTracer.Reporter;
 
