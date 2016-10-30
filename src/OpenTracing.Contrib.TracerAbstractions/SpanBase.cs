@@ -4,9 +4,13 @@ using System.Linq;
 
 namespace OpenTracing.Contrib.TracerAbstractions
 {
+    /// <summary>
+    /// A span base class that does NOT store logs and tags.
+    /// See <see cref="SpanBaseWithDetails"/> for a base class that DOES store logs and tags.
+    /// </summary>
     public abstract class SpanBase : ISpan
     {
-        private const string EventLogKey = "event";
+        private const string LogKeyEvent = "event";
 
         private readonly TracerBase _tracer;
         private readonly SpanContextBase _typedContext;
@@ -59,7 +63,7 @@ namespace OpenTracing.Contrib.TracerAbstractions
             if (string.IsNullOrWhiteSpace(eventName))
                 throw new ArgumentNullException(nameof(eventName));
 
-            return LogHelper(null, new Dictionary<string, object> { { EventLogKey, eventName } });
+            return LogHelper(null, new Dictionary<string, object> { { LogKeyEvent, eventName } });
         }
 
         public ISpan Log(DateTime timestamp, string eventName)
@@ -67,7 +71,7 @@ namespace OpenTracing.Contrib.TracerAbstractions
             if (string.IsNullOrWhiteSpace(eventName))
                 throw new ArgumentNullException(nameof(eventName));
 
-            return LogHelper(timestamp, new Dictionary<string, object> { { EventLogKey, eventName } });
+            return LogHelper(timestamp, new Dictionary<string, object> { { LogKeyEvent, eventName } });
         }
 
         public ISpan Log(IEnumerable<KeyValuePair<string, object>> fields)

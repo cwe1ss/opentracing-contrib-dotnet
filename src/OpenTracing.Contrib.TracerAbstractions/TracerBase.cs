@@ -19,7 +19,7 @@ namespace OpenTracing.Contrib.TracerAbstractions
 
         public abstract void ReportSpan(SpanBase span);
 
-        public void Inject<TCarrier>(ISpanContext spanContext, Format<TCarrier> format, TCarrier carrier)
+        public virtual void Inject<TCarrier>(ISpanContext spanContext, Format<TCarrier> format, TCarrier carrier)
         {
             if (spanContext == null)
                 throw new ArgumentNullException(nameof(spanContext));
@@ -37,7 +37,7 @@ namespace OpenTracing.Contrib.TracerAbstractions
             propagator.Inject(spanContext, carrier);
         }
 
-        public ISpanContext Extract<TCarrier>(Format<TCarrier> format, TCarrier carrier)
+        public virtual ISpanContext Extract<TCarrier>(Format<TCarrier> format, TCarrier carrier)
         {
             if (carrier == null)
                 throw new ArgumentNullException(nameof(carrier));

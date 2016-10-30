@@ -6,8 +6,12 @@ namespace OpenTracing.Contrib.TracerAbstractions
 {
     public abstract class SpanBuilderBase : ISpanBuilder
     {
+        // Variables are only allocated if there are references/tags.
+        // This makes sure we don't do unnecessary allocations.
+
         private List<SpanReference> _references;
 
+        // Separate dictionaries to prevent boxing.
         private Dictionary<string, bool> _boolTags;
         private Dictionary<string, double> _doubleTags;
         private Dictionary<string, int> _intTags;
@@ -17,26 +21,41 @@ namespace OpenTracing.Contrib.TracerAbstractions
 
         protected DateTime? StartTimestamp { get; private set; }
 
+        /// <summary>
+        /// A (potentially empty) list of span references. This will never return <c>null</c>.
+        /// </summary>
         protected IEnumerable<SpanReference> SpanReferences
         {
             get { return _references ?? Enumerable.Empty<SpanReference>(); }
         }
 
+        /// <summary>
+        /// A (potentially empty) list of <c>bool</c> tags. This will never return <c>null</c>.
+        /// </summary>
         protected IEnumerable<KeyValuePair<string, bool>> BoolTags
         {
             get { return _boolTags ?? Enumerable.Empty<KeyValuePair<string, bool>>(); }
         }
 
+        /// <summary>
+        /// A (potentially empty) list of <c>double</c> tags. This will never return <c>null</c>.
+        /// </summary>
         protected IEnumerable<KeyValuePair<string, double>> DoubleTags
         {
             get { return _doubleTags ?? Enumerable.Empty<KeyValuePair<string, double>>(); }
         }
 
+        /// <summary>
+        /// A (potentially empty) list of <c>int</c> tags. This will never return <c>null</c>.
+        /// </summary>
         protected IEnumerable<KeyValuePair<string, int>> IntTags
         {
             get { return _intTags ?? Enumerable.Empty<KeyValuePair<string, int>>(); }
         }
 
+        /// <summary>
+        /// A (potentially empty) list of <c>string</c> tags. This will never return <c>null</c>.
+        /// </summary>
         protected IEnumerable<KeyValuePair<string, string>> StringTags
         {
             get { return _stringTags ?? Enumerable.Empty<KeyValuePair<string, string>>(); }
@@ -103,7 +122,7 @@ namespace OpenTracing.Contrib.TracerAbstractions
             if (_boolTags == null)
                 _boolTags = new Dictionary<string, bool>();
 
-            _boolTags.Add(key, value);
+            _boolTags[key] = value;
             return this;
         }
 
@@ -115,7 +134,7 @@ namespace OpenTracing.Contrib.TracerAbstractions
             if (_doubleTags == null)
                 _doubleTags = new Dictionary<string, double>();
 
-            _doubleTags.Add(key, value);
+            _doubleTags[key] = value;
             return this;
         }
 
@@ -127,7 +146,7 @@ namespace OpenTracing.Contrib.TracerAbstractions
             if (_intTags == null)
                 _intTags = new Dictionary<string, int>();
 
-            _intTags.Add(key, value);
+            _intTags[key] = value;
             return this;
         }
 
@@ -139,41 +158,32 @@ namespace OpenTracing.Contrib.TracerAbstractions
             if (_stringTags == null)
                 _stringTags = new Dictionary<string, string>();
 
-            _stringTags.Add(key, value);
+            _stringTags[key] = value;
             return this;
         }
 
-        public ISpan Start()
-        {
-            return CreateSpan();
-        }
+        public abstract ISpan Start();
 
-        protected abstract SpanBase CreateSpan();
-
+        /// <summary>
+        /// Helper method for passing all tags to the given span
+        /// in case tags are not needed for the span constructor.
+        /// </summary>
         protected void SetSpanTags(ISpan span)
         {
             if (span == null)
                 throw new ArgumentNullException(nameof(span));
 
             foreach (var tag in BoolTags)
-            {
                 span.SetTag(tag.Key, tag.Value);
-            }
 
             foreach (var tag in DoubleTags)
-            {
                 span.SetTag(tag.Key, tag.Value);
-            }
 
             foreach (var tag in IntTags)
-            {
                 span.SetTag(tag.Key, tag.Value);
-            }
 
             foreach (var tag in StringTags)
-            {
                 span.SetTag(tag.Key, tag.Value);
-            }
         }
     }
 }

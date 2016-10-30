@@ -58,8 +58,6 @@ namespace OpenTracing.Contrib.ZipkinTracer.Propagation
             bool sampled = false;
             Dictionary<string, string> baggage = null;
 
-            // TODO @cweiss !!! Parse from x4, ...
-
             foreach (var entry in textMap.GetEntries())
             {
                 if (entry.Key == TraceIdHeader)

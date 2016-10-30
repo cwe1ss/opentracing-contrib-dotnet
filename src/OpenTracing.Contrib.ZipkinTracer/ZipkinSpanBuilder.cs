@@ -17,16 +17,11 @@ namespace OpenTracing.Contrib.ZipkinTracer
             _tracer = tracer;
         }
 
-        protected override SpanBase CreateSpan()
+        public override ISpan Start()
         {
             ZipkinSpanContext context = GetOrCreateContext();
 
-            var span = new ZipkinSpan(
-                _tracer,
-                context,
-                OperationName,
-                StartTimestamp
-            );
+            var span = new ZipkinSpan(_tracer, context, OperationName, StartTimestamp);
 
             SetSpanTags(span);
 
