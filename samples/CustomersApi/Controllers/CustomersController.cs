@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Constants;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,18 +19,14 @@ namespace Samples.CustomersApi.Controllers
         };
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            await Task.Delay(new Random().Next(1, 100));
-
             return Json(_customers);
         }
 
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> Index(int id)
+        public IActionResult Index(int id)
         {
-            await Task.Delay(new Random().Next(1, 100));
-
             var customer = _customers.FirstOrDefault(x => x.CustomerId == id);
 
             if (customer == null)

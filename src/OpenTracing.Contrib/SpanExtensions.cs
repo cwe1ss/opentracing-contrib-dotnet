@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace OpenTracing.Contrib
@@ -11,21 +12,23 @@ namespace OpenTracing.Contrib
         private const string ErrorInner = "error_inner";
         private const string ErrorData = "error_data";
         private const string ErrorHResult = "error_hresult";
+        private const string ErrorCustom = "error_custom";
 
-        public static void SetException(this ISpan span, Exception ex)
+        public static void SetException(this ISpan span, Exception ex, string customMessage = null)
         {
             if (span == null || ex == null)
                 return;
 
             span.SetTag(Tags.Error, true);
 
-            span.SetTag(ErrorMessage, ex.Message);
-            span.SetTag(ErrorType, ex.GetType().FullName);
-            span.SetTag(ErrorStacktrace, ex.StackTrace);
+            var fields = new Dictionary<string, object>();
+            fields.Add(ErrorMessage, ex.Message);
+            fields.Add(ErrorType, ex.GetType().FullName);
+            fields.Add(ErrorStacktrace, ex.StackTrace);
 
             if (ex.InnerException != null)
             {
-                span.SetTag(ErrorInner, ex.InnerException.ToString());
+                fields.Add(ErrorInner, ex.InnerException.ToString());
             }
 
             if (ex.Data?.Count > 0)
@@ -38,13 +41,20 @@ namespace OpenTracing.Contrib
 
                 sb.Length--; // removes last ";"
 
-                span.SetTag(ErrorData, sb.ToString());
+                fields.Add(ErrorData, sb.ToString());
             }
 
             if (ex.HResult != 0)
             {
-                span.SetTag(ErrorHResult, ex.HResult);
+                fields.Add(ErrorHResult, ex.HResult);
             }
+
+            if (customMessage != null)
+            {
+                fields.Add(ErrorCustom, customMessage);
+            }
+
+            span.Log(fields);
         }
     }
 }

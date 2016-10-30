@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 using OpenTracing.Propagation;
 
 namespace OpenTracing.Contrib.AspNetCore
@@ -11,7 +10,6 @@ namespace OpenTracing.Contrib.AspNetCore
     public class OpenTracingMiddleware
     {
         private const string Component = "AspNetCore";
-        private const string HeaderSampling = "ot-debug";
 
         private readonly RequestDelegate _next;
         private readonly ITracer _tracer;
@@ -49,30 +47,23 @@ namespace OpenTracing.Contrib.AspNetCore
         {
             var extractedSpanContext = TryExtractSpanContext(context.Request);
 
-            ISpan span = null;
-            try
+            using (ISpan span = StartSpan(extractedSpanContext, context.Request))
             {
-                span = StartSpan(extractedSpanContext, context.Request);
-
-                // Save span for in-process propagation.
-                context.Items[typeof(ISpan)] = span;
-                if (_spanAccessor != null)
+                // Push span to stack for in-process propagation.
+                using (_spanAccessor?.Push(span))
                 {
-                    _spanAccessor.Span = span;
+                    try
+                    {
+                        await _next(context);
+
+                        span.SetTag(Tags.HttpStatusCode, context.Response.StatusCode);
+                    }
+                    catch (Exception ex)
+                    {
+                        span.SetException(ex);
+                        throw;
+                    }
                 }
-
-                await _next(context);
-
-                span.SetTag(Tags.HttpStatusCode, context.Response.StatusCode);
-            }
-            catch (Exception ex)
-            {
-                span?.SetException(ex);
-                throw;
-            }
-            finally
-            {
-                span?.Dispose();
             }
         }
 
@@ -100,28 +91,10 @@ namespace OpenTracing.Contrib.AspNetCore
                 .WithTag(Tags.SpanKind, Tags.SpanKindServer)
                 .WithTag(Tags.HttpMethod, request.Method)
                 .WithTag(Tags.HttpUrl, request.GetDisplayUrl())
-                .WithTag(Tags.SamplingPriority, GetSamplingPriority(request))
+                .WithTag(Tags.PeerHostname, request.Host.Host)
                 .Start();
 
             return span;
-        }
-
-        private int GetSamplingPriority(HttpRequest request)
-        {
-            StringValues debugHeader;
-            if (!request.Headers.TryGetValue(HeaderSampling, out debugHeader))
-                return 0;
-
-            string debugHeaderString = debugHeader.ToString();
-
-            if (debugHeaderString.Equals("1") || debugHeaderString.Equals("true", StringComparison.OrdinalIgnoreCase))
-            {
-                return 1;
-            }
-            else
-            {
-                return 0;
-            }
         }
     }
 }

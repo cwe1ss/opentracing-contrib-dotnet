@@ -1,35 +1,27 @@
-using System;
 using System.Collections.Generic;
+using OpenTracing.Contrib.TracerAbstractions;
 
 namespace OpenTracing.Contrib.Testing
 {
-    public class TestSpanContext : ISpanContext
+    public class TestSpanContext : SpanContextBase
     {
-        private readonly IDictionary<string, string> _baggage;
+        public List<SpanReference> References { get; } = new List<SpanReference>();
 
-        public TestSpanContext(IDictionary<string, string> baggage = null)
+        public TestSpanContext()
+            : this(null, null, null)
         {
-            _baggage = baggage ?? new Dictionary<string, string>();
         }
 
-        public void SetBaggageItem(string key, string value)
+        public TestSpanContext(IEnumerable<SpanReference> references, Dictionary<string, string> baggage, IClock clock)
+            : base(baggage, clock)
         {
-            _baggage[key] = value;
-        }
-
-        public string GetBaggageItem(string key)
-        {
-            if (key == null)
-                throw new ArgumentNullException();
-
-            string value;
-            _baggage.TryGetValue(key, out value);
-            return value;
-        }
-
-        public IEnumerable<KeyValuePair<string, string>> GetBaggageItems()
-        {
-            return _baggage;
+            if (references != null)
+            {
+                foreach(var reference in references)
+                {
+                    References.Add(reference);
+                }
+            }
         }
     }
 }

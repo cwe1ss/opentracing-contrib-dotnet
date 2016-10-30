@@ -62,7 +62,7 @@ namespace OpenTracing.Contrib.Tests.Http
         }
 
         [Fact]
-        public async Task SendAsync_does_not_create_span_if_no_parent()
+        public async Task SendAsync_creates_span_if_no_parent()
         {
             var tracer = new TestTracer();
             var contextAccessor = new SpanAccessor();
@@ -71,7 +71,7 @@ namespace OpenTracing.Contrib.Tests.Http
 
             var response = await handler.SendAsync(request);
 
-            Assert.Empty(tracer.FinishedSpans);
+            Assert.Equal(1, tracer.FinishedSpans.Count);
         }
 
         [Fact]
@@ -84,7 +84,7 @@ namespace OpenTracing.Contrib.Tests.Http
 
             // Create parent span
             var parentSpan = tracer.BuildSpan("parent").Start();
-            contextAccessor.Span = parentSpan;
+            contextAccessor.Push(parentSpan);
 
             // Call API
             var response = await handler.SendAsync(request);
@@ -102,7 +102,7 @@ namespace OpenTracing.Contrib.Tests.Http
 
             // Create parent span
             var parentSpan = tracer.BuildSpan("parent").Start();
-            contextAccessor.Span = parentSpan;
+            contextAccessor.Push(parentSpan);
 
             // Call API
             var response = await handler.SendAsync(request);
@@ -110,8 +110,8 @@ namespace OpenTracing.Contrib.Tests.Http
             var newSpan = tracer.FinishedSpans[0];
 
             Assert.NotSame(parentSpan, newSpan);
-            Assert.Equal(References.ChildOf, newSpan.References[0].Key);
-            Assert.Same(parentSpan.Context, newSpan.References[0].Value);
+            Assert.Equal(References.ChildOf, newSpan.TypedContext.References[0].ReferenceType);
+            Assert.Same(parentSpan.Context, newSpan.TypedContext.References[0].ReferencedContext);
         }
 
         [Fact]
@@ -124,7 +124,7 @@ namespace OpenTracing.Contrib.Tests.Http
 
             // Create parent span
             var parentSpan = tracer.BuildSpan("parent").Start();
-            contextAccessor.Span = parentSpan;
+            contextAccessor.Push(parentSpan);
 
             // Call API
             var response = await handler.SendAsync(request);
@@ -132,10 +132,10 @@ namespace OpenTracing.Contrib.Tests.Http
             Assert.Equal(1, tracer.FinishedSpans.Count);
 
             var finishedSpan = tracer.FinishedSpans[0];
-            Assert.Equal("HttpClient", finishedSpan.Tags[Tags.Component]);
-            Assert.Equal(Tags.SpanKindClient, finishedSpan.Tags[Tags.SpanKind]);
-            Assert.Equal("http://www.example.com/api/values", finishedSpan.Tags[Tags.HttpUrl]);
-            Assert.Equal("GET", finishedSpan.Tags[Tags.HttpMethod]);
+            Assert.Equal("HttpClient", finishedSpan.GetStringTag(Tags.Component));
+            Assert.Equal(Tags.SpanKindClient, finishedSpan.GetStringTag(Tags.SpanKind));
+            Assert.Equal("http://www.example.com/api/values", finishedSpan.GetStringTag(Tags.HttpUrl));
+            Assert.Equal("GET", finishedSpan.GetStringTag(Tags.HttpMethod));
         }
 
         [Fact]
@@ -153,7 +153,7 @@ namespace OpenTracing.Contrib.Tests.Http
 
             // Create parent span
             var parentSpan = tracer.BuildSpan("parent").Start();
-            contextAccessor.Span = parentSpan;
+            contextAccessor.Push(parentSpan);
 
             // Call API and catch exception
             await Assert.ThrowsAsync<InvalidOperationException>(() => handler.SendAsync(request));
@@ -176,7 +176,7 @@ namespace OpenTracing.Contrib.Tests.Http
 
             // Create parent span
             var parentSpan = tracer.BuildSpan("parent").Start();
-            contextAccessor.Span = parentSpan;
+            contextAccessor.Push(parentSpan);
 
             // Call API and catch exception
             await Assert.ThrowsAsync<InvalidOperationException>(() => handler.SendAsync(request));
@@ -184,8 +184,8 @@ namespace OpenTracing.Contrib.Tests.Http
             Assert.Equal(1, tracer.FinishedSpans.Count);
 
             var finishedSpan = tracer.FinishedSpans[0];
-            Assert.Equal("HttpClient", finishedSpan.Tags[Tags.Component]); // regular tags should be set before invocation.
-            Assert.Equal(true, finishedSpan.Tags[Tags.Error]);
+            Assert.Equal("HttpClient", finishedSpan.GetStringTag(Tags.Component)); // regular tags should be set before invocation.
+            Assert.Equal(true, finishedSpan.GetBoolTag(Tags.Error));
         }
 
         [Fact]
@@ -195,10 +195,6 @@ namespace OpenTracing.Contrib.Tests.Http
             var contextAccessor = new SpanAccessor();
             var handler = new TestOpenTracingDelegatingHandler(tracer, contextAccessor);
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
-
-            // Create parent span
-            var parentSpan = tracer.BuildSpan("parent").Start();
-            contextAccessor.Span = parentSpan;
 
             // Call API
             var response = await handler.SendAsync(request);
