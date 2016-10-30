@@ -33,7 +33,7 @@ namespace OpenTracing.Contrib.Testing
             return null;
         }
 
-        public override void ReportSpan(SpanBase span)
+        public override void SpanFinished(SpanBase span)
         {
             FinishedSpans.Add((TestSpan)span);
         }

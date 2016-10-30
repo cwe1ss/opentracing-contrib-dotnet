@@ -35,7 +35,7 @@ namespace OpenTracing.Contrib.ZipkinTracer
             return new ZipkinSpanBuilder(this, operationName);
         }
 
-        public override void ReportSpan(SpanBase span)
+        public override void SpanFinished(SpanBase span)
         {
             _reporter.ReportSpan((ZipkinSpan)span);
         }

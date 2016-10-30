@@ -19,9 +19,14 @@ namespace OpenTracing.Contrib
         ISpan CurrentSpan { get; }
 
         /// <summary>
+        /// Returns wheter or not there are spans on the local execution storage.
+        /// </summary>
+        bool IsEmpty();
+
+        /// <summary>
         /// Adds the given span to the local execution storage.
         /// </summary>
-        /// <returns>A disposable which pops the given span from the stack.</returns>
+        /// <returns>A disposable which calls <see cref="TryPop"/> on the stack when it is disposed.</returns>
         IDisposable Push(ISpan span);
 
         /// <summary>

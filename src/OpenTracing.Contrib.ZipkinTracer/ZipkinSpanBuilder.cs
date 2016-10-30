@@ -6,6 +6,8 @@ namespace OpenTracing.Contrib.ZipkinTracer
 {
     public class ZipkinSpanBuilder : SpanBuilderBase
     {
+        private static readonly Random _random = new Random();
+
         private readonly ZipkinTracer _tracer;
 
         public ZipkinSpanBuilder(ZipkinTracer tracer, string operationName)
@@ -30,7 +32,7 @@ namespace OpenTracing.Contrib.ZipkinTracer
 
         private ZipkinSpanContext GetOrCreateContext()
         {
-            ulong spanId = (ulong)BitConverter.ToInt64(Guid.NewGuid().ToByteArray(), 0);
+            ulong spanId = GetRandomId();
 
             // TODO @cweiss referenceType, multiple references ?
             int referenceCount = SpanReferences.Count();
@@ -47,14 +49,25 @@ namespace OpenTracing.Contrib.ZipkinTracer
                 var parent = (ZipkinSpanContext)SpanReferences.First().ReferencedContext;
                 return parent.CreateChild(spanId);
             }
+            else
+            {
+                // This is a root span!
 
-            // This is a root span!
+                // TODO @cweiss Sampling important here?!?
+                bool sampled = IntTags.Any(x => x.Key == Tags.SamplingPriority && x.Value == 1);
 
-            // TODO @cweiss Sampling important here?!?
-            bool sampled = IntTags.Any(x => x.Key == Tags.SamplingPriority && x.Value == 1);
+                // TraceId and SpanId may be equal: http://zipkin.io/pages/instrumenting.html
+                return new ZipkinSpanContext(spanId, spanId, parentId: null, sampled: sampled, baggage: null);
+            }
+        }
 
-            // TraceId and SpanId may be equal: http://zipkin.io/pages/instrumenting.html
-            return new ZipkinSpanContext(spanId, spanId, parentId: null, sampled: sampled, baggage: null);
+        private static ulong GetRandomId()
+        {
+            // http://stackoverflow.com/questions/677373/generate-random-values-in-c-sharp
+            byte[] bytes = new byte[8];
+            _random.NextBytes(bytes);
+            ulong number = BitConverter.ToUInt64(bytes, 0);
+            return number;
         }
     }
 }

@@ -17,7 +17,10 @@ namespace OpenTracing.Contrib.TracerAbstractions
 
         public abstract ISpanBuilder BuildSpan(string operationName);
 
-        public abstract void ReportSpan(SpanBase span);
+        /// <summary>
+        /// This method will be called whenever a span has been finished.
+        /// </summary>
+        public abstract void SpanFinished(SpanBase span);
 
         public virtual void Inject<TCarrier>(ISpanContext spanContext, Format<TCarrier> format, TCarrier carrier)
         {

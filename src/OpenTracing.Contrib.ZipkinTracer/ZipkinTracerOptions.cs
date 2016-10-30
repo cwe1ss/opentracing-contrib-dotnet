@@ -13,6 +13,8 @@ namespace OpenTracing.Contrib.ZipkinTracer
 
         public ZipkinTracerOptions()
         {
+            ServiceName = "Unknown";
+
             Propagators.Add(Formats.TextMap.Name, new TextMapPropagator());
             Propagators.Add(Formats.HttpHeaders.Name, new TextMapPropagator());
         }

@@ -133,7 +133,7 @@ namespace OpenTracing.Contrib.TracerAbstractions
 
             FinishTimestamp = Duration.GetTimestamp(finishTimestamp);
 
-            _tracer.ReportSpan(this);
+            _tracer.SpanFinished(this);
         }
     }
 }

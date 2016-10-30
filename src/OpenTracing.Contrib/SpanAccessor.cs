@@ -47,6 +47,8 @@ namespace OpenTracing.Contrib
 
         public int Count => GetSpanStack().Count;
 
+        public bool IsEmpty() => Count == 0;
+
         public ISpan CurrentSpan
         {
             get
