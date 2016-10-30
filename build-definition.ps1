@@ -20,6 +20,7 @@ Properties {
     $NugetLibraries = @(
         "src/OpenTracing.Contrib",
         "src/OpenTracing.Contrib.AspNetCore",
+        "src/OpenTracing.Contrib.TeeTracer",
         "src/OpenTracing.Contrib.Testing",
         "src/OpenTracing.Contrib.TracerAbstractions",
         "src/OpenTracing.Contrib.ZipkinTracer"

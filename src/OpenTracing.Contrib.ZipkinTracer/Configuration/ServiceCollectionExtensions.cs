@@ -28,7 +28,13 @@ namespace Microsoft.Extensions.DependencyInjection
                 throw new ArgumentNullException(nameof(options));
 
             services.AddSingleton(options);
-            services.AddSingleton<ITracer, ZipkinTracer>();
+
+            // Allow the tracer implementation itself to be resolved.
+            // This is important for the TeeTracer which needs the actual implementation.
+            services.AddSingleton<ZipkinTracer>();
+
+            // Use the same instance if someone resolves it through the ITracer interface.
+            services.AddSingleton<ITracer>(provider => provider.GetRequiredService<ZipkinTracer>());
 
             services.TryAddSingleton<ISpanReporter, AwfulPoCReporter>();
 
