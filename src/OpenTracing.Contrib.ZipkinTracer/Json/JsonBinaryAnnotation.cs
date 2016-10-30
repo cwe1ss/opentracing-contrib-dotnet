@@ -8,7 +8,7 @@ namespace OpenTracing.Contrib.ZipkinTracer.Json
         private readonly BinaryAnnotation _binaryAnnotation;
 
         [JsonProperty("endpoint")]
-        public JsonEndpoint Endpoint => new JsonEndpoint(_binaryAnnotation.Host);
+        public JsonEndpoint Endpoint => new JsonEndpoint(_binaryAnnotation.Endpoint);
 
         [JsonProperty("key")]
         public string Key => _binaryAnnotation.Key;

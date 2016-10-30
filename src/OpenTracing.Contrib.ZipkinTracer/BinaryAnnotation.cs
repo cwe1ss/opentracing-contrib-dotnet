@@ -1,13 +1,45 @@
+using System;
+
 namespace OpenTracing.Contrib.ZipkinTracer
 {
+    /// <summary>
+    /// Special annotation without time component. They can carry extra
+    /// information i.e. when calling an HTTP service &rArr; URI of the call.
+    /// </summary>
     public class BinaryAnnotation
     {
-        public Endpoint Host { get; set; }
+        /// <summary>
+        /// Key of binary annotation.
+        /// </summary>
+        public string Key { get; }
 
-        public string Key { get; set; }
+        /// <summary>
+        /// Binary annotation's value.
+        /// </summary>
+        public object Value { get; }
 
-        public object Value { get; set; }
+        /// <summary>
+        /// Enum identifying type of value stored inside <see cref="Value"/> field.
+        /// </summary>
+        public AnnotationType AnnotationType { get; }
 
-        public AnnotationType AnnotationType => Value.GetType().AsAnnotationType();
+        /// <summary>
+        /// Service endpoint.
+        /// </summary>
+        public Endpoint Endpoint { get; }
+
+        public BinaryAnnotation(string key, object value, Endpoint endpoint)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentNullException(nameof(key));
+
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+
+            Key = key;
+            Value = value;
+            AnnotationType = value.GetType().AsAnnotationType();
+            Endpoint = endpoint;
+        }
     }
 }

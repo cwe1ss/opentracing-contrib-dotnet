@@ -55,7 +55,7 @@ namespace OpenTracing.Contrib.ZipkinTracer
             if (_annotations == null)
                 _annotations = new List<Annotation>();
 
-            _annotations.Add(new Annotation(_endpoint, timestamp, value));
+            _annotations.Add(new Annotation(timestamp, value, _endpoint));
         }
 
         private ISpan AddTag(string key, object value)
@@ -92,7 +92,7 @@ namespace OpenTracing.Contrib.ZipkinTracer
                 if (_annotations == null)
                     _annotations = new List<Annotation>();
 
-                _annotations.Add(new Annotation(_endpoint, StartTimestamp, annotationValue));
+                _annotations.Add(new Annotation(StartTimestamp, annotationValue, _endpoint));
                 return true;
             }
 
@@ -107,12 +107,7 @@ namespace OpenTracing.Contrib.ZipkinTracer
             if (key == Tags.Component)
                 key = AnnotationConstants.LocalComponent;
 
-            _binaryAnnotations.Add(new BinaryAnnotation
-            {
-                Host = _endpoint,
-                Key = key,
-                Value = value
-            });
+            _binaryAnnotations.Add(new BinaryAnnotation(key, value, _endpoint));
         }
     }
 }
