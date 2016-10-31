@@ -40,7 +40,7 @@ namespace OpenTracing.Instrumentation.AspNetCore
         [DiagnosticName(EventBeginRequest)]
         public void OnBeginRequest(HttpContext httpContext)
         {
-            try
+            Execute(() =>
             {
                 var extractedSpanContext = TryExtractSpanContext(httpContext.Request);
 
@@ -48,29 +48,21 @@ namespace OpenTracing.Instrumentation.AspNetCore
 
                 // Push span to stack for in-process propagation.
                 TraceContext.Push(span);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(0, ex, "OnBeginRequest failed");
-            }
+            });
         }
 
         [DiagnosticName(EventEndRequest)]
         public void OnEndRequest(HttpContext httpContext)
         {
-            try
+            Execute(() =>
             {
-                var span = TryPopSpan();
+                var span = PopAndFinishOrphaned();
                 if (span == null)
                     return;
 
                 span.SetTag(Tags.HttpStatusCode, httpContext.Response.StatusCode);
                 span.Finish();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(0, ex, "OnEndRequest failed");
-            }
+            });
         }
 
         [DiagnosticName(EventHostingUnhandledException)]
@@ -127,22 +119,39 @@ namespace OpenTracing.Instrumentation.AspNetCore
             return request.Path;
         }
 
-        private ISpan TryPopSpan()
+        /// <summary>
+        /// <para>This method will return the bottom-span from the stack.
+        /// If there's more than one span on the stack, it will call <see cref="ISpan.Finish"/> on them.</para>
+        /// <para>This should be called by outermost handlers who create root spans and want to finish all open spans.</para>
+        /// </summary>
+        private ISpan PopAndFinishOrphaned()
         {
-            ISpan span = TraceContext.TryPop();
-            if (span == null)
+            ISpan last = null;
+            while (TraceContext.Count > 0)
+            {
+                last = TraceContext.TryPop();
+
+                // if it hasn't been the last, it's orphaned and must be finished.
+                if (TraceContext.Count > 0)
+                {
+                    Logger.LogError("Orphaned span detected. {SpanContext}", last.Context);
+                    last.Finish();
+                }
+            }
+
+            if (last == null)
             {
                 Logger.LogError("Span not found");
             }
 
-            return span;
+            return last;
         }
 
         private void HandleException(HttpContext httpContext, Exception exception)
         {
             try
             {
-                var span = TryPopSpan();
+                var span = PopAndFinishOrphaned();
                 if (span == null)
                     return;
 

@@ -5,12 +5,12 @@ using OpenTracing.Instrumentation.Http;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-    public static class OpenTracingBuilderExtensions
+    public static class InstrumentationBuilderExtensions
     {
         /// <summary>
         /// Traces Entity Framework Core commands.
         /// </summary>
-        public static IOpenTracingBuilder AddEntityFrameworkCore(this IOpenTracingBuilder builder)
+        public static IInstrumentationBuilder AddEntityFrameworkCore(this IInstrumentationBuilder builder)
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
@@ -23,7 +23,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Traces outgoing HTTP calls.
         /// </summary>
-        public static IOpenTracingBuilder AddHttpClient(this IOpenTracingBuilder builder)
+        public static IInstrumentationBuilder AddHttpClient(this IInstrumentationBuilder builder)
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));

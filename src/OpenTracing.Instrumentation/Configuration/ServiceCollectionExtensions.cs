@@ -7,14 +7,16 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static IOpenTracingBuilder AddOpenTracing(this IServiceCollection services, bool addDefaultInterceptors = true)
+        public static IInstrumentationBuilder AddInstrumentation(this IServiceCollection services, bool addDefaultInterceptors = true)
         {
             if (services == null)
                 throw new ArgumentNullException(nameof(services));
 
+            // Core services
             services.TryAddSingleton<ITraceContext, TraceContext>();
+            services.TryAddSingleton<IInstrumentor, Instrumentor>();
 
-            var builder = new OpenTracingBuilder(services);
+            var builder = new InstrumentationBuilder(services);
 
             if (addDefaultInterceptors)
             {
@@ -23,20 +25,6 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             return builder;
-        }
-
-        public static void StartOpenTracing(this IServiceProvider serviceProvider)
-        {
-            // TODO @cweiss this must be done different.
-
-            if (serviceProvider == null)
-                throw new ArgumentNullException(nameof(serviceProvider));
-
-            var inspectors = serviceProvider.GetServices<IDiagnosticInterceptor>();
-            foreach (var inspector in inspectors)
-            {
-                inspector.Start();
-            }
         }
     }
 }

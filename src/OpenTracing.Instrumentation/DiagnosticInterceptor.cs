@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 
 namespace OpenTracing.Instrumentation
@@ -44,6 +45,24 @@ namespace OpenTracing.Instrumentation
         protected virtual bool IsEnabled(string listenerName)
         {
             return true;
+        }
+
+        protected void Execute(Action action, [CallerMemberName] string callerMemberName = null)
+        {
+            try
+            {
+                if (Logger.IsEnabled(LogLevel.Trace))
+                    Logger.LogTrace("{Event}-Start: {SpanCount}", callerMemberName, TraceContext.Count);
+
+                action();
+
+                if (Logger.IsEnabled(LogLevel.Trace))
+                    Logger.LogTrace("{Event}-End: {SpanCount}", callerMemberName, TraceContext.Count);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(0, ex, "{Event} failed", callerMemberName);
+            }
         }
     }
 }

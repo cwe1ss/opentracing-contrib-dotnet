@@ -36,7 +36,7 @@ namespace OpenTracing.Instrumentation.Http
         [DiagnosticName(EventRequest)]
         public void OnRequest(HttpRequestMessage request)
         {
-            try
+            Execute(() =>
             {
                 if (ShouldIgnore(request))
                 {
@@ -50,18 +50,13 @@ namespace OpenTracing.Instrumentation.Http
                 Tracer.Inject(span.Context, Formats.HttpHeaders, new HttpHeadersCarrier(request.Headers));
 
                 request.Properties[PropertySpan] = span;
-
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(0, ex, "OnHttpRequest failed");
-            }
+            });
         }
 
         [DiagnosticName(EventResponse)]
         public void OnResponse(HttpResponseMessage response)
         {
-            try
+            Execute(() =>
             {
                 if (response.RequestMessage.Properties.ContainsKey(PropertyIgnored))
                     return;
@@ -78,11 +73,7 @@ namespace OpenTracing.Instrumentation.Http
 
                 span.SetTag(Tags.HttpStatusCode, (int)response.StatusCode);
                 span.Finish();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(0, ex, "OnHttpResponse failed");
-            }
+            });
         }
 
         private bool ShouldIgnore(HttpRequestMessage request)
@@ -126,7 +117,7 @@ namespace OpenTracing.Instrumentation.Http
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            return request.RequestUri.AbsolutePath.TrimStart('/');
+            return request.Method.Method + "_" + request.RequestUri.AbsolutePath.TrimStart('/');
         }
     }
 }

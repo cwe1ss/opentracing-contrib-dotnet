@@ -41,7 +41,7 @@ namespace OpenTracing.Instrumentation.EntityFrameworkCore
         [DiagnosticName(EventBeforeExecuteCommand)]
         public void OnBeforeExecuteCommand(IDbCommand command, string executeMethod, bool isAsync)
         {
-            try
+            Execute(() =>
             {
                 var parent = TraceContext.CurrentSpan;
                 if (parent == null)
@@ -62,11 +62,7 @@ namespace OpenTracing.Instrumentation.EntityFrameworkCore
                     .Start();
 
                 _span.Value = span;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(0, ex, "OnBeforeExecuteCommand failed");
-            }
+            });
         }
 
         /// <summary>
@@ -75,7 +71,7 @@ namespace OpenTracing.Instrumentation.EntityFrameworkCore
         [DiagnosticName(EventAfterExecuteCommand)]
         public void OnAfterExecuteCommand(IDbCommand command, string executeMethod, bool isAsync)
         {
-            try
+            Execute(() =>
             {
                 ISpan span = _span.Value;
                 if (span == null)
@@ -85,11 +81,7 @@ namespace OpenTracing.Instrumentation.EntityFrameworkCore
                 }
 
                 span.Finish();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(0, ex, "OnAfterExecuteCommand failed");
-            }
+            });
         }
 
         /// <summary>
@@ -98,7 +90,7 @@ namespace OpenTracing.Instrumentation.EntityFrameworkCore
         [DiagnosticName(EventCommandExecutionError)]
         public void OnCommandExecutionError(IDbCommand command, string executeMethod, bool isAsync, Exception exception)
         {
-            try
+            Execute(() =>
             {
                 ISpan span = _span.Value;
                 if (span == null)
@@ -109,11 +101,7 @@ namespace OpenTracing.Instrumentation.EntityFrameworkCore
 
                 span.SetException(exception);
                 span.Finish();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(0, ex, "OnAfterExecuteCommand failed");
-            }
+            });
         }
     }
 }

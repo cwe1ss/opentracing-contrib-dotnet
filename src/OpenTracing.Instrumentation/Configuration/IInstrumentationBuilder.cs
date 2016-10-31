@@ -1,6 +1,6 @@
 namespace Microsoft.Extensions.DependencyInjection
 {
-    public interface IOpenTracingBuilder
+    public interface IInstrumentationBuilder
     {
         IServiceCollection Services { get; }
     }

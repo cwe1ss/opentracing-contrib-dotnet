@@ -3,11 +3,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace OpenTracing.Instrumentation.Configuration
 {
-    public class OpenTracingBuilder : IOpenTracingBuilder
+    public class InstrumentationBuilder : IInstrumentationBuilder
     {
         public IServiceCollection Services { get; }
 
-        public OpenTracingBuilder(IServiceCollection services)
+        public InstrumentationBuilder(IServiceCollection services)
         {
             if (services == null)
                 throw new ArgumentNullException(nameof(services));

@@ -27,14 +27,16 @@ namespace Samples.CustomersApi
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddOpenTracing()
-                .AddAspNetCore();
+            services.AddInstrumentation()   // Adds default instrumentations (HttpClient, EFCore)
+                .AddAspNetCore();       // Adds ASP.NET Core request instrumentation and auto-starts instrumentation
 
+            // Send all traces to Zipkin
             services.AddZipkinTracer(options =>
             {
                 options.ServiceName = "customers";
             });
 
+            // Adds an InMemory-Sqlite DB to show EFCore traces.
             services
                 .AddEntityFrameworkSqlite()
                 .AddDbContext<CustomerDbContext>(options =>
@@ -51,10 +53,8 @@ namespace Samples.CustomersApi
 
         public void Configure(IApplicationBuilder app)
         {
+            // Load some dummy data into the InMemory db.
             BootstrapDataStore(app.ApplicationServices);
-
-            // TODO @cweiss !!
-            app.ApplicationServices.StartOpenTracing();
 
             app.UseDeveloperExceptionPage();
 

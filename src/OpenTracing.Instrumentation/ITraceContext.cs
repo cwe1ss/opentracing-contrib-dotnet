@@ -3,8 +3,8 @@ using System;
 namespace OpenTracing.Instrumentation
 {
     /// <summary>
-    /// <para>Allows users to propagate spans with its <see cref="ISpanContext"/> in-process by using
-    /// either CallContext (net451) or AsyncLocal (netstandard1.3+) storage.</para>
+    /// <para>Allows users to propagate spans with its <see cref="ISpanContext"/> in-process
+    /// by using AsyncLocal storage.</para>
     /// </summary>
     public interface ITraceContext
     {

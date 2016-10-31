@@ -25,7 +25,7 @@ namespace Samples.FrontendWeb
         public void ConfigureServices(IServiceCollection services)
         {
             // Allows this application to create spans.
-            services.AddOpenTracing()
+            services.AddInstrumentation()
                 .AddAspNetCore();
 
             // Send spans to Zipkin.
@@ -41,9 +41,6 @@ namespace Samples.FrontendWeb
 
         public void Configure(IApplicationBuilder app)
         {
-            // TODO @cweiss !!
-            app.ApplicationServices.StartOpenTracing();
-
             app.UseDeveloperExceptionPage();
 
             app.UseMvcWithDefaultRoute();

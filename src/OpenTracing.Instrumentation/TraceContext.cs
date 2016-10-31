@@ -1,34 +1,11 @@
 using System;
 using System.Collections.Generic;
-#if NET451
-using System.Runtime.Remoting;
-using System.Runtime.Remoting.Messaging;
-#elif NETSTANDARD1_3
 using System.Threading;
-#endif
 
 namespace OpenTracing.Instrumentation
 {
     public class TraceContext : ITraceContext
     {
-#if NET451
-        private static readonly string LogicalDataKey = "__SpanStack__" + AppDomain.CurrentDomain.Id;
-
-        private Stack<ISpan> GetSpanStack()
-        {
-            var handle = CallContext.LogicalGetData(LogicalDataKey) as ObjectHandle;
-            var spanStack = handle?.Unwrap() as Stack<ISpan>;
-
-            if (spanStack == null)
-            {
-                spanStack = new Stack<ISpan>();
-                CallContext.LogicalSetData(LogicalDataKey, new ObjectHandle(spanStack));
-            }
-
-            return spanStack;
-        }
-
-#elif NETSTANDARD1_3
         private AsyncLocal<Stack<ISpan>> _asyncLocalSpanStack = new AsyncLocal<Stack<ISpan>>();
 
         private Stack<ISpan> GetSpanStack()
@@ -43,7 +20,6 @@ namespace OpenTracing.Instrumentation
 
             return spanStack;
         }
-#endif
 
         public int Count => GetSpanStack().Count;
 

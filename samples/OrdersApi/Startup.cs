@@ -24,7 +24,7 @@ namespace Samples.OrdersApi
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddOpenTracing()
+            services.AddInstrumentation()
                 .AddAspNetCore();
 
             services.AddZipkinTracer(options =>
@@ -39,9 +39,6 @@ namespace Samples.OrdersApi
 
         public void Configure(IApplicationBuilder app)
         {
-            // TODO @cweiss !!
-            app.ApplicationServices.StartOpenTracing();
-
             app.UseDeveloperExceptionPage();
 
             app.UseMvc();
