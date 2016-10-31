@@ -4,9 +4,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OpenTracing;
-using OpenTracing.Contrib;
-using OpenTracing.Contrib.Http;
 
 namespace Samples.FrontendWeb
 {
@@ -28,7 +25,8 @@ namespace Samples.FrontendWeb
         public void ConfigureServices(IServiceCollection services)
         {
             // Allows this application to create spans.
-            services.AddOpenTracing();
+            services.AddOpenTracing()
+                .AddAspNetCore();
 
             // Send spans to Zipkin.
             services.AddZipkinTracer(options =>
@@ -36,25 +34,17 @@ namespace Samples.FrontendWeb
                 options.ServiceName = "frontend";
             });
 
-            services.AddSingleton(provider =>
-            {
-                var tracer = provider.GetRequiredService<ITracer>();
-                var spanContextAccessor = provider.GetRequiredService<ISpanAccessor>();
-
-                var openTracingHandler = new OpenTracingDelegatingHandler(tracer, spanContextAccessor);
-                openTracingHandler.InnerHandler = new HttpClientHandler();
-
-                return new HttpClient(openTracingHandler);
-            });
+            services.AddSingleton<HttpClient>();
 
             services.AddMvc();
         }
 
         public void Configure(IApplicationBuilder app)
         {
-            app.UseDeveloperExceptionPage();
+            // TODO @cweiss !!
+            app.ApplicationServices.StartOpenTracing();
 
-            app.UseOpenTracing();
+            app.UseDeveloperExceptionPage();
 
             app.UseMvcWithDefaultRoute();
         }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Constants;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using OpenTracing.Contrib;
+using OpenTracing.Instrumentation;
 
 namespace Samples.OrdersApi.Controllers
 {
@@ -13,18 +13,18 @@ namespace Samples.OrdersApi.Controllers
     public class OrdersController : Controller
     {
         private readonly HttpClient _httpClient;
-        private readonly ISpanAccessor _spanAccessor;
+        private readonly ITraceContext _traceContext;
 
-        public OrdersController(HttpClient httpClient, ISpanAccessor spanAccessor)
+        public OrdersController(HttpClient httpClient, ITraceContext traceContext)
         {
             if (httpClient == null)
                 throw new ArgumentNullException(nameof(httpClient));
 
-            if (spanAccessor == null)
-                throw new ArgumentNullException(nameof(spanAccessor));
+            if (traceContext == null)
+                throw new ArgumentNullException(nameof(traceContext));
 
             _httpClient = httpClient;
-            _spanAccessor = spanAccessor;
+            _traceContext = traceContext;
         }
 
         [HttpPost]
@@ -32,7 +32,7 @@ namespace Samples.OrdersApi.Controllers
         {
             var customer = await GetCustomer(cmd.CustomerId.Value);
 
-            var span = _spanAccessor.CurrentSpan;
+            var span = _traceContext.CurrentSpan;
 
             span?.Log(new Dictionary<string, object> {
                 { "event", "OrderPlaced" },

@@ -12,8 +12,8 @@
 
   "dependencies": {
     "Constants": "1.0.0-*",
-    "OpenTracing.Contrib.AspNetCore": "0.1.0-*",
-    "OpenTracing.Contrib.ZipkinTracer": "0.1.0-*",
+    "OpenTracing.Instrumentation.AspNetCore": "0.1.0-*",
+    "OpenTracing.Tracer.Zipkin": "0.1.0-*",
 
     "Microsoft.NETCore.App": {
       "version": "1.0.1",
@@ -23,6 +23,8 @@
     "Microsoft.AspNetCore.Mvc": "1.0.1",
     "Microsoft.AspNetCore.Server.IISIntegration": "1.0.0",
     "Microsoft.AspNetCore.Server.Kestrel": "1.0.1",
+    "Microsoft.EntityFrameworkCore": "1.0.1",
+    "Microsoft.EntityFrameworkCore.Sqlite": "1.0.1",
     "Microsoft.Extensions.Configuration.Json": "1.0.0",
     "Microsoft.Extensions.Logging.Console": "1.0.0"
   },

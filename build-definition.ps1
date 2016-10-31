@@ -18,11 +18,11 @@ Properties {
 
     # A list of projects for which NuGet packages should be created
     $NugetLibraries = @(
-        "src/OpenTracing.Contrib",
-        "src/OpenTracing.Contrib.AspNetCore",
-        "src/OpenTracing.Contrib.Testing",
-        "src/OpenTracing.Contrib.TracerAbstractions",
-        "src/OpenTracing.Contrib.ZipkinTracer"
+        "src/OpenTracing.Instrumentation",
+        "src/OpenTracing.Instrumentation.AspNetCore",
+        "src/OpenTracing.Testing",
+        "src/OpenTracing.Tracer.Abstractions",
+        "src/OpenTracing.Tracer.Zipkin"
     )
 }
 

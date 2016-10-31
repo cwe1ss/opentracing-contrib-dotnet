@@ -4,9 +4,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OpenTracing;
-using OpenTracing.Contrib;
-using OpenTracing.Contrib.Http;
 
 namespace Samples.OrdersApi
 {
@@ -27,32 +24,25 @@ namespace Samples.OrdersApi
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddOpenTracing();
+            services.AddOpenTracing()
+                .AddAspNetCore();
 
             services.AddZipkinTracer(options =>
             {
                 options.ServiceName = "orders";
             });
 
-            services.AddSingleton(provider =>
-            {
-                var tracer = provider.GetRequiredService<ITracer>();
-                var spanContextAccessor = provider.GetRequiredService<ISpanAccessor>();
-
-                var openTracingHandler = new OpenTracingDelegatingHandler(tracer, spanContextAccessor);
-                openTracingHandler.InnerHandler = new HttpClientHandler();
-
-                return new HttpClient(openTracingHandler);
-            });
+            services.AddSingleton<HttpClient>();
 
             services.AddMvc();
         }
 
         public void Configure(IApplicationBuilder app)
         {
-            app.UseDeveloperExceptionPage();
+            // TODO @cweiss !!
+            app.ApplicationServices.StartOpenTracing();
 
-            app.UseOpenTracing();
+            app.UseDeveloperExceptionPage();
 
             app.UseMvc();
         }

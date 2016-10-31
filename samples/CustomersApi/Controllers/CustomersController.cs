@@ -1,33 +1,29 @@
-using System.Collections.Generic;
 using System.Linq;
-using Constants;
 using Microsoft.AspNetCore.Mvc;
+using Samples.CustomersApi.DataStore;
 
 namespace Samples.CustomersApi.Controllers
 {
     [Route("customers")]
     public class CustomersController : Controller
     {
-        private static readonly List<Customer> _customers = new List<Customer>
+        private readonly CustomerDbContext _dbContext;
+
+        public CustomersController(CustomerDbContext dbContext)
         {
-            new Customer(1, "Marcel Belding"),
-            new Customer(2, "Phyllis Schriver"),
-            new Customer(3, "Estefana Balderrama"),
-            new Customer(4, "Kenyetta Lone"),
-            new Customer(5, "Vernita Fernald"),
-            new Customer(6, "Tessie Storrs")
-        };
+            _dbContext = dbContext;
+        }
 
         [HttpGet]
         public IActionResult Index()
         {
-            return Json(_customers);
+            return Json(_dbContext.Customers.ToList());
         }
 
         [HttpGet("{id:int}")]
         public IActionResult Index(int id)
         {
-            var customer = _customers.FirstOrDefault(x => x.CustomerId == id);
+            var customer = _dbContext.Customers.FirstOrDefault(x => x.CustomerId == id);
 
             if (customer == null)
                 return NotFound();
