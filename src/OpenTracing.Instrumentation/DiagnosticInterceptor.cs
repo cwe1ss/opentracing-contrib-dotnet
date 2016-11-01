@@ -31,7 +31,7 @@ namespace OpenTracing.Instrumentation
 
         public void Start()
         {
-            _subscription = System.Diagnostics.DiagnosticListener.AllListeners.Subscribe(listener =>
+            _subscription = DiagnosticListener.AllListeners.Subscribe(listener =>
             {
                 listener.SubscribeWithAdapter(this, IsEnabled);
             });

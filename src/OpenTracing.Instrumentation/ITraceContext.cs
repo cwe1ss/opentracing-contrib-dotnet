@@ -19,7 +19,7 @@ namespace OpenTracing.Instrumentation
         ISpan CurrentSpan { get; }
 
         /// <summary>
-        /// Returns wheter or not there are spans on the local execution storage.
+        /// Returns whether or not there are spans on the local execution storage.
         /// </summary>
         bool IsEmpty();
 

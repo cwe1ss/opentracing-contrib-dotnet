@@ -135,6 +135,9 @@ namespace OpenTracing.Instrumentation.AspNetCore
                 if (TraceContext.Count > 0)
                 {
                     Logger.LogError("Orphaned span detected. {SpanContext}", last.Context);
+
+                    last.SetTag(Tags.Error, true);
+                    last.SetTag("error.message", "orphaned span");
                     last.Finish();
                 }
             }
