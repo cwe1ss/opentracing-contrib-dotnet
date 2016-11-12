@@ -1,18 +1,17 @@
 using System;
 using System.Net;
 using OpenTracing.Tracer.Abstractions;
-using OpenTracing.Tracer.Zipkin.Reporter;
 
 namespace OpenTracing.Tracer.Zipkin
 {
     public class ZipkinTracer : TracerBase
     {
         private readonly ZipkinTracerOptions _options;
-        private readonly ISpanReporter _reporter;
+        private readonly IReporter _reporter;
 
         public Endpoint Endpoint { get; }
 
-        public ZipkinTracer(ZipkinTracerOptions options, ISpanReporter reporter)
+        public ZipkinTracer(ZipkinTracerOptions options, IReporter reporter)
             : base(options)
         {
             if (reporter == null)
@@ -37,7 +36,7 @@ namespace OpenTracing.Tracer.Zipkin
 
         public override void SpanFinished(SpanBase span)
         {
-            _reporter.ReportSpan((ZipkinSpan)span);
+            _reporter.Report(span);
         }
     }
 }
