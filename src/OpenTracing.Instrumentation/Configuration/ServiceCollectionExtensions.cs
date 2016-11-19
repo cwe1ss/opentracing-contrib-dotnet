@@ -7,22 +7,27 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static IInstrumentationBuilder AddInstrumentation(this IServiceCollection services, bool addDefaultInterceptors = true)
+        public static IInstrumentationBuilder AddOpenTracing(this IServiceCollection services)
         {
             if (services == null)
                 throw new ArgumentNullException(nameof(services));
 
-            // Core services
+            var builder = services.AddOpenTracingCore()
+                .AddEntityFrameworkCore()
+                .AddHttpClient();
+
+            return builder;
+        }
+
+        public static IInstrumentationBuilder AddOpenTracingCore(this IServiceCollection services)
+        {
+            if (services == null)
+                throw new ArgumentNullException(nameof(services));
+
             services.TryAddSingleton<ITraceContext, TraceContext>();
             services.TryAddSingleton<IInstrumentor, Instrumentor>();
 
             var builder = new InstrumentationBuilder(services);
-
-            if (addDefaultInterceptors)
-            {
-                builder.AddEntityFrameworkCore();
-                builder.AddHttpClient();
-            }
 
             return builder;
         }

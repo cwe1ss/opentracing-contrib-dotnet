@@ -25,7 +25,7 @@ namespace Samples.FrontendWeb
         public void ConfigureServices(IServiceCollection services)
         {
             // Allows this application to create spans.
-            services.AddInstrumentation()
+            services.AddOpenTracing()
                 .AddAspNetCore();
 
             // Send traces to Zipkin

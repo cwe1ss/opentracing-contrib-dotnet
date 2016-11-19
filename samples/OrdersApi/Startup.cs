@@ -24,7 +24,7 @@ namespace Samples.OrdersApi
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddInstrumentation()
+            services.AddOpenTracing()
                 .AddAspNetCore();
 
             // Send traces to Zipkin
