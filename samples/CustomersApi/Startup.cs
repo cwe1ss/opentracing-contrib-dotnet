@@ -27,14 +27,14 @@ namespace Samples.CustomersApi
 
         public void ConfigureServices(IServiceCollection services)
         {
+            // Enable OpenTracing instrumentation
             services.AddInstrumentation()   // Adds default instrumentations (HttpClient, EFCore)
-                .AddAspNetCore();       // Adds ASP.NET Core request instrumentation and auto-starts instrumentation
+                .AddAspNetCore();           // Adds ASP.NET Core request instrumentation and auto-starts instrumentation
 
-            // Send all traces to Zipkin
-            services.AddZipkinTracer(options =>
-            {
-                options.ServiceName = "customers";
-            });
+            // Send traces to Zipkin
+            services.AddZipkinTracer(options => options
+                .WithZipkinUri("http://localhost:9411")
+                .WithServiceName("customers"));
 
             // Adds an InMemory-Sqlite DB to show EFCore traces.
             services

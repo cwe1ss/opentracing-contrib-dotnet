@@ -28,11 +28,11 @@ namespace Samples.FrontendWeb
             services.AddInstrumentation()
                 .AddAspNetCore();
 
-            // Send spans to Zipkin.
-            services.AddZipkinTracer(options =>
-            {
-                options.ServiceName = "frontend";
-            });
+            // Send traces to Zipkin
+            services.AddZipkinTracer(options => options
+                .WithZipkinUri("http://localhost:9411")
+                .WithServiceName("frontend")
+                .WithProbabilisticSampler(0.5));
 
             services.AddSingleton<HttpClient>();
 

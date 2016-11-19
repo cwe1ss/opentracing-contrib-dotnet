@@ -96,7 +96,7 @@ namespace OpenTracing.Tracer.Abstractions
         }
 
         /// <summary>
-        /// This will only be called if the timestamp is valid and if <paramref name="fields"/> contains enries.
+        /// This will only be called if the timestamp is valid and if <paramref name="fields"/> contains entries.
         /// </summary>
         protected abstract void LogInternal(DateTime timestamp, IEnumerable<KeyValuePair<string, object>> fields);
 

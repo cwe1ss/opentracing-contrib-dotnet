@@ -34,27 +34,30 @@ namespace OpenTracing.Tracer.Zipkin
         {
             ulong spanId = GetRandomId();
 
-            // TODO @cweiss referenceType, multiple references ?
-            int referenceCount = SpanReferences.Count();
+            // Only one reference is supported right now - the rest is ignored.
+            var parent = (ZipkinSpanContext)SpanReferences.FirstOrDefault()?.ReferencedContext;
 
-            if (referenceCount > 1)
+            if (parent != null)
             {
-                throw new NotSupportedException("Only one parent is supported right now");
-            }
-
-            if (referenceCount == 1)
-            {
-                // This is a child-span!
-
-                var parent = (ZipkinSpanContext)SpanReferences.First().ReferencedContext;
                 return parent.CreateChild(spanId);
             }
             else
             {
                 // This is a root span!
 
-                // TODO @cweiss Sampling important here?!?
-                bool sampled = IntTags.Any(x => x.Key == Tags.SamplingPriority && x.Value == 1);
+                bool sampled = false;
+
+                if (IntTags.Any(x => x.Key == Tags.SamplingPriority && x.Value == 1))
+                {
+                    sampled = true;
+                }
+                else if (_tracer.Sampler.IsSampled(spanId))
+                {
+                    sampled = true;
+
+                    foreach (var tag in _tracer.Sampler.GetTags())
+                        WithTag(tag.Key, tag.Value);
+                }
 
                 // TraceId and SpanId may be equal: http://zipkin.io/pages/instrumenting.html
                 return new ZipkinSpanContext(spanId, spanId, parentId: null, sampled: sampled, baggage: null);

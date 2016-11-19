@@ -27,10 +27,10 @@ namespace Samples.OrdersApi
             services.AddInstrumentation()
                 .AddAspNetCore();
 
-            services.AddZipkinTracer(options =>
-            {
-                options.ServiceName = "orders";
-            });
+            // Send traces to Zipkin
+            services.AddZipkinTracer(options => options
+                .WithZipkinUri("http://localhost:9411")
+                .WithServiceName("orders"));
 
             services.AddSingleton<HttpClient>();
 

@@ -16,7 +16,7 @@ namespace OpenTracing.Instrumentation.Http
         private const string Component = "HttpHandler";
 
 
-        private const string PropertyIgnored = "ot-ignored";
+        private const string PropertyIgnore = "ot-ignore";
         private const string PropertySpan = "ot-span";
 
 
@@ -41,7 +41,6 @@ namespace OpenTracing.Instrumentation.Http
                 if (ShouldIgnore(request))
                 {
                     Logger.LogDebug("Ignoring Request {RequestUri}", request.RequestUri);
-                    request.Properties[PropertyIgnored] = true;
                     return;
                 }
 
@@ -58,7 +57,7 @@ namespace OpenTracing.Instrumentation.Http
         {
             Execute(() =>
             {
-                if (response.RequestMessage.Properties.ContainsKey(PropertyIgnored))
+                if (response.RequestMessage.Properties.ContainsKey(PropertyIgnore))
                     return;
 
                 object objSpan;
@@ -78,10 +77,10 @@ namespace OpenTracing.Instrumentation.Http
 
         private bool ShouldIgnore(HttpRequestMessage request)
         {
-            // TODO @cweiss make this configurable
-
-            if (request.RequestUri.ToString() == "http://localhost:9411/api/v1/spans")
+            if (request.Properties.ContainsKey(PropertyIgnore))
                 return true;
+
+            // TODO @cweiss other hooks?
 
             return false;
         }

@@ -1,6 +1,6 @@
 using System;
 
-namespace OpenTracing.Tracer.Abstractions
+namespace OpenTracing.Tracer.Zipkin
 {
     public interface IReporter : IDisposable
     {

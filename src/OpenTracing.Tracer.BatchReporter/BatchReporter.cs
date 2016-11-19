@@ -5,7 +5,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
-using OpenTracing.Tracer.Abstractions;
 using OpenTracing.Tracer.BatchReporter.Internal;
 
 namespace OpenTracing.Tracer.BatchReporter
@@ -26,7 +25,7 @@ namespace OpenTracing.Tracer.BatchReporter
     /// also overproduction (the second, queue-dropping response). In combination these should provide a
     /// reasonable delivery effort but ultimately protect the sender from memory exhaustion.
     /// </remarks>
-    public abstract class BatchReporterBase : IReporter, IDisposable
+    public abstract class BatchReporterBase : IDisposable
     {
         public const string DropReasonShutdown = "Shutdown";
         public const string DropReasonQueueSizeExceeded = "MaxQueueSizeExceeded";

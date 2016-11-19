@@ -18,10 +18,10 @@ namespace OpenTracing.Tracer.BatchReporter
         public BatchReporterOptions()
         {
             MaxQueueSize = 1000;
-            MaxBatchSize = 25;
-            FlushInterval = TimeSpan.FromSeconds(1);
+            MaxBatchSize = 50;
+            FlushInterval = TimeSpan.FromSeconds(2);
 
-            MinBackoffPeriod = TimeSpan.FromSeconds(1);
+            MinBackoffPeriod = TimeSpan.FromSeconds(5);
             MaxBackoffPeriod = TimeSpan.FromMinutes(1);
 
             FailuresBeforeDroppingBatch = 4;

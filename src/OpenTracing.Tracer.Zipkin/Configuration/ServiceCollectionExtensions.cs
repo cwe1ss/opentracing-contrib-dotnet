@@ -1,10 +1,7 @@
 ﻿using System;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using OpenTracing;
-using OpenTracing.Tracer.Abstractions;
-using OpenTracing.Tracer.BatchReporter;
 using OpenTracing.Tracer.Zipkin;
-using OpenTracing.Tracer.Zipkin.Reporter;
+using OpenTracing.Tracer.Zipkin.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -31,10 +28,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddSingleton(options);
             services.AddSingleton<ITracer, ZipkinTracer>();
-
-            // TODO @cweiss !!! change me :)
-            var awfulPocOptions = new BatchReporterOptions();
-            services.TryAddSingleton<IReporter>(_ => new AwfulPoCReporter(awfulPocOptions));
+            services.AddSingleton<IEndpointResolver, DefaultEndpointResolver>();
 
             return services;
         }

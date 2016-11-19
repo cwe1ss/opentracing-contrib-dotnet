@@ -6,6 +6,8 @@ namespace OpenTracing.Instrumentation
 {
     public static class SpanExtensions
     {
+        // TODO @cweiss all of this must be discussed!
+
         private const string ErrorMessage = "error.message";
         private const string ErrorStacktrace = "error.stacktrace";
         private const string ErrorType = "error.type";
