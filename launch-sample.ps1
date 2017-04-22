@@ -1,4 +1,4 @@
-dotnet build samples\**\project.json
+dotnet build
 if ($LASTEXITCODE -ne 0) { throw "build error" }
 
 Start-Process `

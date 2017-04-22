@@ -1,38 +1,37 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{420F640A-E23F-457C-BEC7-1DEAD1C592F1}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B15B729C-0801-4266-B560-B0FE00D2DB9E}"
-	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{F9AD8B6F-1F59-4678-B9CF-9CD87172A111}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{36333C22-54F7-403C-ABC4-BECE4EE3F52D}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Constants", "samples\Constants\Constants.xproj", "{69609C83-10C2-4147-AD33-A45EEBF95AE6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Constants", "samples\Constants\Constants.csproj", "{69609C83-10C2-4147-AD33-A45EEBF95AE6}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "FrontendWeb", "samples\FrontendWeb\FrontendWeb.xproj", "{02E89100-5AF7-489D-944D-4A193BE96C4B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FrontendWeb", "samples\FrontendWeb\FrontendWeb.csproj", "{02E89100-5AF7-489D-944D-4A193BE96C4B}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "OrdersApi", "samples\OrdersApi\OrdersApi.xproj", "{F2849F7B-C73B-4160-8151-77CD201CF9BD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrdersApi", "samples\OrdersApi\OrdersApi.csproj", "{F2849F7B-C73B-4160-8151-77CD201CF9BD}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "CustomersApi", "samples\CustomersApi\CustomersApi.xproj", "{D11AD9F6-D7F3-478D-9C1E-8F9D954C900D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomersApi", "samples\CustomersApi\CustomersApi.csproj", "{D11AD9F6-D7F3-478D-9C1E-8F9D954C900D}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "OpenTracing.Instrumentation", "src\OpenTracing.Instrumentation\OpenTracing.Instrumentation.xproj", "{A84401EA-3B7B-46A6-97A6-C0648EB4EAF2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Instrumentation", "src\OpenTracing.Instrumentation\OpenTracing.Instrumentation.csproj", "{A84401EA-3B7B-46A6-97A6-C0648EB4EAF2}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "OpenTracing.Instrumentation.AspNetCore", "src\OpenTracing.Instrumentation.AspNetCore\OpenTracing.Instrumentation.AspNetCore.xproj", "{2484DE0B-27A7-4B85-8DC6-63D9B546DED3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Instrumentation.AspNetCore", "src\OpenTracing.Instrumentation.AspNetCore\OpenTracing.Instrumentation.AspNetCore.csproj", "{2484DE0B-27A7-4B85-8DC6-63D9B546DED3}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "OpenTracing.Tracer.Abstractions", "src\OpenTracing.Tracer.Abstractions\OpenTracing.Tracer.Abstractions.xproj", "{ECADF3BA-B1F2-4F55-BB2F-0EE4E700C0B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Tracer.Abstractions", "src\OpenTracing.Tracer.Abstractions\OpenTracing.Tracer.Abstractions.csproj", "{ECADF3BA-B1F2-4F55-BB2F-0EE4E700C0B7}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "OpenTracing.Tracer.Zipkin", "src\OpenTracing.Tracer.Zipkin\OpenTracing.Tracer.Zipkin.xproj", "{A80A5CC0-5637-4FDC-9741-087A7DA4824D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Tracer.Zipkin", "src\OpenTracing.Tracer.Zipkin\OpenTracing.Tracer.Zipkin.csproj", "{A80A5CC0-5637-4FDC-9741-087A7DA4824D}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "OpenTracing.Instrumentation.Tests", "test\OpenTracing.Instrumentation.Tests\OpenTracing.Instrumentation.Tests.xproj", "{2313D9A2-7F73-4F4B-B408-895BB5F892E4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Instrumentation.Tests", "test\OpenTracing.Instrumentation.Tests\OpenTracing.Instrumentation.Tests.csproj", "{2313D9A2-7F73-4F4B-B408-895BB5F892E4}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "OpenTracing.Testing", "src\OpenTracing.Testing\OpenTracing.Testing.xproj", "{69496566-4559-485C-9118-F3A8968253CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Testing", "src\OpenTracing.Testing\OpenTracing.Testing.csproj", "{69496566-4559-485C-9118-F3A8968253CD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Tracer.BatchReporter", "src\OpenTracing.Tracer.BatchReporter\OpenTracing.Tracer.BatchReporter.csproj", "{CAC7DDA3-08C2-4559-ACA7-BD4E729D814D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Tracer.BatchReporter.Tests", "test\OpenTracing.Tracer.BatchReporter.Tests\OpenTracing.Tracer.BatchReporter.Tests.csproj", "{F3DC445C-FEA6-455B-9DD6-DE160ADFB05C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -80,6 +79,14 @@ Global
 		{69496566-4559-485C-9118-F3A8968253CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69496566-4559-485C-9118-F3A8968253CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69496566-4559-485C-9118-F3A8968253CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAC7DDA3-08C2-4559-ACA7-BD4E729D814D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAC7DDA3-08C2-4559-ACA7-BD4E729D814D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAC7DDA3-08C2-4559-ACA7-BD4E729D814D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAC7DDA3-08C2-4559-ACA7-BD4E729D814D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3DC445C-FEA6-455B-9DD6-DE160ADFB05C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3DC445C-FEA6-455B-9DD6-DE160ADFB05C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3DC445C-FEA6-455B-9DD6-DE160ADFB05C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3DC445C-FEA6-455B-9DD6-DE160ADFB05C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -95,5 +102,7 @@ Global
 		{A80A5CC0-5637-4FDC-9741-087A7DA4824D} = {420F640A-E23F-457C-BEC7-1DEAD1C592F1}
 		{2313D9A2-7F73-4F4B-B408-895BB5F892E4} = {F9AD8B6F-1F59-4678-B9CF-9CD87172A111}
 		{69496566-4559-485C-9118-F3A8968253CD} = {420F640A-E23F-457C-BEC7-1DEAD1C592F1}
+		{CAC7DDA3-08C2-4559-ACA7-BD4E729D814D} = {420F640A-E23F-457C-BEC7-1DEAD1C592F1}
+		{F3DC445C-FEA6-455B-9DD6-DE160ADFB05C} = {F9AD8B6F-1F59-4678-B9CF-9CD87172A111}
 	EndGlobalSection
 EndGlobal
