@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using OpenTracing.Tracer.Abstractions;
 using OpenTracing.Propagation;
+using OpenTracing.Tracer;
 
 namespace OpenTracing.Testing
 {
@@ -22,12 +22,12 @@ namespace OpenTracing.Testing
             return new TestSpanBuilder(this, operationName);
         }
 
-        public override void Inject<TCarrier>(ISpanContext spanContext, Format<TCarrier> format, TCarrier carrier)
+        public override void Inject<TCarrier>(ISpanContext spanContext, IFormat<TCarrier> format, TCarrier carrier)
         {
             InjectCalled = true;
         }
 
-        public override ISpanContext Extract<TCarrier>(Format<TCarrier> format, TCarrier carrier)
+        public override ISpanContext Extract<TCarrier>(IFormat<TCarrier> format, TCarrier carrier)
         {
             ExtractCalled = true;
             return null;

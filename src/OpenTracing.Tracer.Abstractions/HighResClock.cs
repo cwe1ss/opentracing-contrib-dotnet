@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace OpenTracing.Tracer.Abstractions
+namespace OpenTracing.Tracer
 {
     /// <summary>
-    /// <para>The value of the system clock that DateTime.Now reads is only updated every 10-15 ms.
-    /// This class uses a combination of <see cref="DateTime.UtcNow"/> and <see cref="Stopwatch"/>
+    /// <para>The value of the system clock that DateTimeOffset.Now reads is only updated every 10-15 ms.
+    /// This class uses a combination of <see cref="DateTimeOffset.UtcNow"/> and <see cref="Stopwatch"/>
     /// to calculate a more accurate timestamp.</para>
     /// <para>WARNING: The Stopwatch runs out of sync (by as much as half a second per hour)! This means,
     /// an instance of this class must be short-lived!
@@ -17,9 +17,9 @@ namespace OpenTracing.Tracer.Abstractions
     /// </remarks>
     public class HighResClock : IClock
     {
-        private readonly DateTime _startTime = DateTime.UtcNow;
+        private readonly DateTimeOffset _startTime = DateTimeOffset.UtcNow;
         private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
 
-        public virtual DateTime UtcNow =>_startTime.AddTicks(_stopwatch.Elapsed.Ticks);
+        public virtual DateTimeOffset UtcNow =>_startTime.AddTicks(_stopwatch.Elapsed.Ticks);
     }
 }

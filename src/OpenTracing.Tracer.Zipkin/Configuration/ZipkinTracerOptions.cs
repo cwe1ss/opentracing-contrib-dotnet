@@ -28,8 +28,8 @@ namespace OpenTracing.Tracer.Zipkin.Configuration
         public ZipkinTracerOptions()
         {
             // Defaults
-            Propagators.Add(Formats.TextMap.Name, new TextMapPropagator());
-            Propagators.Add(Formats.HttpHeaders.Name, new TextMapPropagator());
+            Propagators.Add(BuiltinFormats.TextMap.Name, new TextMapPropagator());
+            Propagators.Add(BuiltinFormats.HttpHeaders.Name, new TextMapPropagator());
         }
 
         public ZipkinTracerOptions WithServiceName(string serviceName)

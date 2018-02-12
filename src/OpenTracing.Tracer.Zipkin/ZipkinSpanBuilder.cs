@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
-using OpenTracing.Tracer.Abstractions;
+using OpenTracing.Tag;
+using OpenTracing.Tracer;
 
 namespace OpenTracing.Tracer.Zipkin
 {

@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using OpenTracing.Tracer.Abstractions;
+using OpenTracing.Tracer;
 
 namespace OpenTracing.Tracer.Zipkin
 {

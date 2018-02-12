@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OpenTracing.Tracer.Abstractions
+namespace OpenTracing.Tracer
 {
     /// <summary>
     /// A helper type for managing a duration that uses either system timestamps
@@ -10,17 +10,15 @@ namespace OpenTracing.Tracer.Abstractions
     {
         private readonly IClock _clock;
 
-        public DateTime StartTimestamp { get; }
+        public DateTimeOffset StartTimestamp { get; }
 
-        public SpanDuration(IClock clock, DateTime? userSuppliedStartTimestamp)
+        public SpanDuration(IClock clock, DateTimeOffset? userSuppliedStartTimestamp)
         {
             if (clock == null)
                 throw new ArgumentNullException(nameof(clock));
 
             if (userSuppliedStartTimestamp.HasValue)
             {
-                EnsureUtc(userSuppliedStartTimestamp.Value);
-
                 // User-supplied timestamps! We don't need the clock.
                 _clock = null;
                 StartTimestamp = userSuppliedStartTimestamp.Value;
@@ -33,7 +31,7 @@ namespace OpenTracing.Tracer.Abstractions
             }
         }
 
-        public DateTime GetTimestamp(DateTime? userSuppliedTimestamp)
+        public DateTimeOffset GetTimestamp(DateTimeOffset? userSuppliedTimestamp)
         {
             if (_clock == null)
             {
@@ -45,7 +43,6 @@ namespace OpenTracing.Tracer.Abstractions
                         "All events for such a span must provide a user-supplied timestamp.");
                 }
 
-                EnsureUtc(userSuppliedTimestamp.Value);
                 EnsureGreaterThanStart(userSuppliedTimestamp.Value);
 
                 return userSuppliedTimestamp.Value;
@@ -64,19 +61,11 @@ namespace OpenTracing.Tracer.Abstractions
             }
         }
 
-        private void EnsureGreaterThanStart(DateTime timestamp)
+        private void EnsureGreaterThanStart(DateTimeOffset timestamp)
         {
             if (timestamp < StartTimestamp)
             {
                 throw new InvalidOperationException("The user-supplied timestamp must be higher than the start time.");
-            }
-        }
-
-        private static void EnsureUtc(DateTime timestamp)
-        {
-            if (timestamp.Kind != DateTimeKind.Utc)
-            {
-                throw new InvalidOperationException("The kind for user-supplied timestamps must be 'Utc'.");
             }
         }
     }

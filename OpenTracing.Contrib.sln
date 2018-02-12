@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.7
+VisualStudioVersion = 15.0.26430.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{420F640A-E23F-457C-BEC7-1DEAD1C592F1}"
 EndProject
@@ -32,6 +32,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Tracer.BatchReporter", "src\OpenTracing.Tracer.BatchReporter\OpenTracing.Tracer.BatchReporter.csproj", "{CAC7DDA3-08C2-4559-ACA7-BD4E729D814D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Tracer.BatchReporter.Tests", "test\OpenTracing.Tracer.BatchReporter.Tests\OpenTracing.Tracer.BatchReporter.Tests.csproj", "{F3DC445C-FEA6-455B-9DD6-DE160ADFB05C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing", "..\..\opentracing\opentracing-csharp\src\OpenTracing\OpenTracing.csproj", "{89E1A35B-C1C7-4C0D-ACEE-C08EF89F325E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -87,6 +89,10 @@ Global
 		{F3DC445C-FEA6-455B-9DD6-DE160ADFB05C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3DC445C-FEA6-455B-9DD6-DE160ADFB05C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F3DC445C-FEA6-455B-9DD6-DE160ADFB05C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89E1A35B-C1C7-4C0D-ACEE-C08EF89F325E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89E1A35B-C1C7-4C0D-ACEE-C08EF89F325E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89E1A35B-C1C7-4C0D-ACEE-C08EF89F325E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89E1A35B-C1C7-4C0D-ACEE-C08EF89F325E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

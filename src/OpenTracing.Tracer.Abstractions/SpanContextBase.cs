@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OpenTracing.Tracer.Abstractions
+namespace OpenTracing.Tracer
 {
     public abstract class SpanContextBase : ISpanContext
     {

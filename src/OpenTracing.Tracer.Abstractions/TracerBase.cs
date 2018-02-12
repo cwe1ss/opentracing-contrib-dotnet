@@ -1,7 +1,8 @@
 using System;
+using System.Threading;
 using OpenTracing.Propagation;
 
-namespace OpenTracing.Tracer.Abstractions
+namespace OpenTracing.Tracer
 {
     public abstract class TracerBase : ITracer
     {
@@ -15,6 +16,10 @@ namespace OpenTracing.Tracer.Abstractions
             _options = options;
         }
 
+        public IScopeManager ScopeManager { get; private set; }
+
+        public ISpan ActiveSpan => ScopeManager?.Active?.Span;
+
         public abstract ISpanBuilder BuildSpan(string operationName);
 
         /// <summary>
@@ -22,7 +27,7 @@ namespace OpenTracing.Tracer.Abstractions
         /// </summary>
         public abstract void SpanFinished(SpanBase span);
 
-        public virtual void Inject<TCarrier>(ISpanContext spanContext, Format<TCarrier> format, TCarrier carrier)
+        public virtual void Inject<TCarrier>(ISpanContext spanContext, IFormat<TCarrier> format, TCarrier carrier)
         {
             if (spanContext == null)
                 throw new ArgumentNullException(nameof(spanContext));
@@ -40,7 +45,7 @@ namespace OpenTracing.Tracer.Abstractions
             propagator.Inject(spanContext, carrier);
         }
 
-        public virtual ISpanContext Extract<TCarrier>(Format<TCarrier> format, TCarrier carrier)
+        public virtual ISpanContext Extract<TCarrier>(IFormat<TCarrier> format, TCarrier carrier)
         {
             if (carrier == null)
                 throw new ArgumentNullException(nameof(carrier));

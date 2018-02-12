@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using OpenTracing.Tracer.Abstractions;
+using OpenTracing.Tag;
+using OpenTracing.Tracer;
 
 namespace OpenTracing.Tracer.Zipkin
 {
@@ -47,7 +48,7 @@ namespace OpenTracing.Tracer.Zipkin
             return AddTag(key, value);
         }
 
-        protected override void LogInternal(DateTime timestamp, IEnumerable<KeyValuePair<string, object>> fields)
+        protected override void LogInternal(DateTimeOffset timestamp, IDictionary<string, object> fields)
         {
             // TODO @cweiss How should we store fields?
             string value = string.Join(", ", fields.Select(x => $"{x.Key}:{x.Value}"));

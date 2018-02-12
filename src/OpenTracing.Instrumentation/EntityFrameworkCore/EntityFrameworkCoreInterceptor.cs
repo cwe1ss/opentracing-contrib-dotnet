@@ -3,6 +3,7 @@ using System.Threading;
 using Microsoft.Extensions.DiagnosticAdapter;
 using Microsoft.Extensions.Logging;
 using OpenTracing.Instrumentation.EntityFrameworkCore.Proxies;
+using OpenTracing.Tag;
 
 namespace OpenTracing.Instrumentation.EntityFrameworkCore
 {
@@ -21,8 +22,8 @@ namespace OpenTracing.Instrumentation.EntityFrameworkCore
 
         private AsyncLocal<ISpan> _span = new AsyncLocal<ISpan>();
 
-        public EntityFrameworkCoreInterceptor(ILoggerFactory loggerFactory, ITracer tracer, ITraceContext traceContext)
-            : base(loggerFactory, tracer, traceContext)
+        public EntityFrameworkCoreInterceptor(ILoggerFactory loggerFactory, ITracer tracer)
+            : base(loggerFactory, tracer)
         {
         }
 
@@ -43,23 +44,18 @@ namespace OpenTracing.Instrumentation.EntityFrameworkCore
         {
             Execute(() =>
             {
-                var parent = TraceContext.CurrentSpan;
-                if (parent == null)
-                {
-                    Logger.LogDebug("No parent span found. Creating new span.");
-                }
-
                 // TODO @cweiss !! OperationName ??
                 string operationName = executeMethod;
 
-                var span = Tracer.BuildSpan(operationName)
-                    .AsChildOf(parent)
-                    .WithTag(Tags.SpanKind, Tags.SpanKindClient)
-                    .WithTag(Tags.Component, Component)
-                    .WithTag(TagCommandText, command.CommandText)
-                    .WithTag(TagMethod, executeMethod)
-                    .WithTag(TagIsAsync, isAsync)
-                    .Start();
+                var span = Tracer.BuildSpan(operationName).Start();
+
+                Tags.SpanKind.Set(span, Tags.SpanKindClient);
+                Tags.Component.Set(span, Component);
+                span.SetTag(TagCommandText, command.CommandText);
+
+                span.SetTag(TagCommandText, command.CommandText);
+                span.SetTag(TagMethod, executeMethod);
+                span.SetTag(TagIsAsync, isAsync);;
 
                 _span.Value = span;
             });

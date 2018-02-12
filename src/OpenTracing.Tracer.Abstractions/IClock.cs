@@ -1,9 +1,9 @@
 using System;
 
-namespace OpenTracing.Tracer.Abstractions
+namespace OpenTracing.Tracer
 {
     public interface IClock
     {
-        DateTime UtcNow { get; }
+        DateTimeOffset UtcNow { get; }
     }
 }

@@ -3,6 +3,7 @@ using System.Net.Http;
 using Microsoft.Extensions.DiagnosticAdapter;
 using Microsoft.Extensions.Logging;
 using OpenTracing.Propagation;
+using OpenTracing.Tag;
 
 namespace OpenTracing.Instrumentation.Http
 {
@@ -20,8 +21,8 @@ namespace OpenTracing.Instrumentation.Http
         private const string PropertySpan = "ot-span";
 
 
-        public HttpHandlerInterceptor(ILoggerFactory loggerFactory, ITracer tracer, ITraceContext traceContext)
-            : base(loggerFactory, tracer, traceContext)
+        public HttpHandlerInterceptor(ILoggerFactory loggerFactory, ITracer tracer)
+            : base(loggerFactory, tracer)
         {
         }
 
@@ -46,7 +47,7 @@ namespace OpenTracing.Instrumentation.Http
 
                 var span = StartSpan(request);
 
-                Tracer.Inject(span.Context, Formats.HttpHeaders, new HttpHeadersCarrier(request.Headers));
+                Tracer.Inject(span.Context, BuiltinFormats.HttpHeaders, new HttpHeadersCarrier(request.Headers));
 
                 request.Properties[PropertySpan] = span;
             });
@@ -70,7 +71,7 @@ namespace OpenTracing.Instrumentation.Http
                     return;
                 }
 
-                span.SetTag(Tags.HttpStatusCode, (int)response.StatusCode);
+                Tags.HttpStatus.Set(span, (int)response.StatusCode);
                 span.Finish();
             });
         }
@@ -87,24 +88,16 @@ namespace OpenTracing.Instrumentation.Http
 
         private ISpan StartSpan(HttpRequestMessage request)
         {
-            ISpan parent = TraceContext.CurrentSpan;
-
-            if (parent == null)
-            {
-                Logger.LogDebug("No parent span found. Creating new span.");
-            }
-
             string operationName = GetOperationName(request);
 
-            ISpan span = Tracer.BuildSpan(operationName)
-                .AsChildOf(parent)
-                .WithTag(Tags.SpanKind, Tags.SpanKindClient)
-                .WithTag(Tags.Component, Component)
-                .WithTag(Tags.HttpMethod, request.Method.ToString())
-                .WithTag(Tags.HttpUrl, request.RequestUri.ToString())
-                .WithTag(Tags.PeerHostname, request.RequestUri.Host)
-                .WithTag(Tags.PeerPort, request.RequestUri.Port)
-                .Start();
+            ISpan span = Tracer.BuildSpan(operationName).Start();
+
+            Tags.SpanKind.Set(span, Tags.SpanKindClient);
+            Tags.Component.Set(span, Component);
+            Tags.HttpMethod.Set(span, request.Method.ToString());
+            Tags.HttpUrl.Set(span, request.RequestUri.ToString());
+            Tags.PeerHostname.Set(span, request.RequestUri.Host);
+            Tags.PeerPort.Set(span, request.RequestUri.Port);
 
             return span;
         }

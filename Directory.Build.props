@@ -1,12 +1,22 @@
 <Project>
   <PropertyGroup>
     <VersionPrefix>0.1.0</VersionPrefix>
-    <VersionSuffix></VersionSuffix>
     <Authors>Christian Weiss</Authors>
     <PackageIconUrl>https://avatars0.githubusercontent.com/u/15482765</PackageIconUrl>
     <PackageProjectUrl>https://github.com/cwe1ss/opentracing-contrib-dotnet</PackageProjectUrl>
     <PackageLicenseUrl>https://raw.githubusercontent.com/cwe1ss/opentracing-contrib-dotnet/master/LICENSE</PackageLicenseUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>git://github.com/cwe1ss/opentracing-contrib-dotnet</RepositoryUrl>
+
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <DebugType>portable</DebugType>
+
+    <!-- There's currently a pack-warning because of the long "Description" tag. However, "Summary" is no longer supported.
+    This will be fixed in an upcoming version of nuget. The workaround for now is to just disable analysis.
+    https://github.com/NuGet/Home/issues/4587#issuecomment-288913324 -->
+    <NoPackageAnalysis>true</NoPackageAnalysis>
   </PropertyGroup>
 </Project>

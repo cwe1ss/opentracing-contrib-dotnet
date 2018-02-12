@@ -1,4 +1,4 @@
-using OpenTracing.Tracer.Abstractions;
+using OpenTracing.Tracer;
 
 namespace OpenTracing.Testing
 {

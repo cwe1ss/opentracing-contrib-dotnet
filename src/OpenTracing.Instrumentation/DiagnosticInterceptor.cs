@@ -11,9 +11,8 @@ namespace OpenTracing.Instrumentation
 
         protected ILogger Logger { get; }
         protected ITracer Tracer { get; }
-        protected ITraceContext TraceContext { get; }
 
-        protected DiagnosticInterceptor(ILoggerFactory loggerFactory, ITracer tracer, ITraceContext traceContext)
+        protected DiagnosticInterceptor(ILoggerFactory loggerFactory, ITracer tracer)
         {
             if (loggerFactory == null)
                 throw new ArgumentNullException(nameof(loggerFactory));
@@ -21,12 +20,8 @@ namespace OpenTracing.Instrumentation
             if (tracer == null)
                 throw new ArgumentNullException(nameof(tracer));
 
-            if (traceContext == null)
-                throw new ArgumentNullException(nameof(traceContext));
-
             Logger = loggerFactory.CreateLogger(GetType());
             Tracer = tracer;
-            TraceContext = traceContext;
         }
 
         public void Start()
@@ -52,12 +47,12 @@ namespace OpenTracing.Instrumentation
             try
             {
                 if (Logger.IsEnabled(LogLevel.Trace))
-                    Logger.LogTrace("{Event}-Start: {SpanCount}", callerMemberName, TraceContext.Count);
+                    Logger.LogTrace("{Event}-Start", callerMemberName);
 
                 action();
 
                 if (Logger.IsEnabled(LogLevel.Trace))
-                    Logger.LogTrace("{Event}-End: {SpanCount}", callerMemberName, TraceContext.Count);
+                    Logger.LogTrace("{Event}-End", callerMemberName);
             }
             catch (Exception ex)
             {

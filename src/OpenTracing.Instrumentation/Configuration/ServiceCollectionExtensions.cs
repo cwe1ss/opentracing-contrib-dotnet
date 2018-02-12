@@ -24,7 +24,6 @@ namespace Microsoft.Extensions.DependencyInjection
             if (services == null)
                 throw new ArgumentNullException(nameof(services));
 
-            services.TryAddSingleton<ITraceContext, TraceContext>();
             services.TryAddSingleton<IInstrumentor, Instrumentor>();
 
             var builder = new InstrumentationBuilder(services);

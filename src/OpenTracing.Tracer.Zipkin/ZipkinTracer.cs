@@ -1,6 +1,6 @@
 using System;
 using System.Net;
-using OpenTracing.Tracer.Abstractions;
+using OpenTracing.Tracer;
 using OpenTracing.Tracer.Zipkin.Configuration;
 using OpenTracing.Tracer.Zipkin.Json;
 using OpenTracing.Tracer.Zipkin.Sampling;

@@ -12,15 +12,12 @@ namespace OpenTracing.Instrumentation.Tests.Http
         private const string PropertySpan = "ot-span";
 
         private HttpHandlerInterceptor GetInterceptor(
-            ITracer tracer = null,
-            ITraceContext traceContext = null
-        )
+            ITracer tracer = null)
         {
             var loggerFactory = new LoggerFactory();
             tracer = tracer ?? new TestTracer();
-            traceContext = traceContext ?? new TraceContext();
 
-            return new HttpHandlerInterceptor(loggerFactory, tracer, traceContext);
+            return new HttpHandlerInterceptor(loggerFactory, tracer);
         }
 
         [Fact]
@@ -38,13 +35,11 @@ namespace OpenTracing.Instrumentation.Tests.Http
         public void OnRequest_creates_span_if_parent()
         {
             var tracer = new TestTracer();
-            var traceContext = new TraceContext();
-            var interceptor = GetInterceptor(tracer, traceContext);
+            var interceptor = GetInterceptor(tracer);
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
 
             // Create parent span
             var parentSpan = tracer.BuildSpan("parent").Start();
-            traceContext.Push(parentSpan);
 
             // Call interceptor
             interceptor.OnRequest(request);
@@ -57,13 +52,11 @@ namespace OpenTracing.Instrumentation.Tests.Http
         public void OnRequest_span_is_child_of_parent()
         {
             var tracer = new TestTracer();
-            var traceContext = new TraceContext();
-            var interceptor = GetInterceptor(tracer, traceContext);
+            var interceptor = GetInterceptor(tracer);
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
 
             // Create parent span
             var parentSpan = tracer.BuildSpan("parent").Start();
-            traceContext.Push(parentSpan);
 
             // Call interceptor
             interceptor.OnRequest(request);
@@ -79,8 +72,7 @@ namespace OpenTracing.Instrumentation.Tests.Http
         public void OnRequest_span_has_tags()
         {
             var tracer = new TestTracer();
-            var traceContext = new TraceContext();
-            var interceptor = GetInterceptor(tracer, traceContext);
+            var interceptor = GetInterceptor(tracer);
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
 
             // Call interceptor
@@ -98,8 +90,7 @@ namespace OpenTracing.Instrumentation.Tests.Http
         public void OnRequest_calls_Inject()
         {
             var tracer = new TestTracer();
-            var traceContext = new TraceContext();
-            var interceptor = GetInterceptor(tracer, traceContext);
+            var interceptor = GetInterceptor(tracer);
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
 
             // Call interceptor

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace OpenTracing.Instrumentation
 {
     /// <summary>
-    /// <para>Represents a collection of key:value pairs for a <see cref="ISpan.Log"/> call.</para>
+    /// <para>Represents a collection of key:value pairs for a <see cref="ISpan.Log(IDictionary{string, object})"/> call.</para>
     /// <para>In contrast to an arbitrary dictionary, this type does not do unique key checks.</para>
     /// </summary>
     public class Fields : IEnumerable<KeyValuePair<string, object>>

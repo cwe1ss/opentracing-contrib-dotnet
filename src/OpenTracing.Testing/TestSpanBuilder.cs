@@ -1,5 +1,5 @@
 using System;
-using OpenTracing.Tracer.Abstractions;
+using OpenTracing.Tracer;
 
 namespace OpenTracing.Testing
 {
@@ -8,21 +8,16 @@ namespace OpenTracing.Testing
         public TestTracer Tracer { get; }
 
         public TestSpanBuilder(TestTracer tracer, string operationName)
-            : base(operationName)
+            : base(tracer, operationName)
         {
-            if (tracer == null)
-                throw new ArgumentNullException(nameof(tracer));
-
             Tracer = tracer;
         }
 
-        public override ISpan Start()
+        protected override SpanBase CreateSpan()
         {
             TestSpanContext spanContext = new TestSpanContext(SpanReferences, null, null);
 
-            var span = new TestSpan(Tracer, spanContext, OperationName, StartTimestamp);
-
-            SetSpanTags(span);
+            var span = new TestSpan(Tracer, spanContext, OperationName, StartTimestamp, SpanTags);
 
             return span;
         }

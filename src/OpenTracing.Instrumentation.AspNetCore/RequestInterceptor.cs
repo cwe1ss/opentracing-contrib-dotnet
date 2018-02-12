@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.DiagnosticAdapter;
 using Microsoft.Extensions.Logging;
 using OpenTracing.Propagation;
+using OpenTracing.Tag;
 
 namespace OpenTracing.Instrumentation.AspNetCore
 {
@@ -21,8 +22,8 @@ namespace OpenTracing.Instrumentation.AspNetCore
 
         private const string Component = "AspNetCore";
 
-        public RequestInterceptor(ILoggerFactory loggerFactory, ITracer tracer, ITraceContext spanAccessor)
-            : base(loggerFactory, tracer, spanAccessor)
+        public RequestInterceptor(ILoggerFactory loggerFactory, ITracer tracer)
+            : base(loggerFactory, tracer)
         {
         }
 
@@ -42,12 +43,21 @@ namespace OpenTracing.Instrumentation.AspNetCore
         {
             Execute(() =>
             {
-                var extractedSpanContext = TryExtractSpanContext(httpContext.Request);
+                var request = httpContext.Request;
 
-                ISpan span = StartSpan(extractedSpanContext, httpContext.Request);
+                var extractedSpanContext = TryExtractSpanContext(request);
 
-                // Push span to stack for in-process propagation.
-                TraceContext.Push(span);
+                var operationName = GetOperationName(request);
+
+                var span = Tracer.BuildSpan(operationName)
+                    .AsChildOf(extractedSpanContext)
+                    .Start();
+
+                Tags.Component.Set(span, Component);
+                Tags.SpanKind.Set(span, Tags.SpanKindServer);
+                Tags.HttpMethod.Set(span, request.Method);
+                Tags.HttpUrl.Set(span, request.GetDisplayUrl());
+                Tags.PeerHostname.Set(span, request.Host.Host);
             });
         }
 
@@ -56,11 +66,14 @@ namespace OpenTracing.Instrumentation.AspNetCore
         {
             Execute(() =>
             {
-                var span = PopAndFinishOrphaned();
+                var span = Tracer.ActiveSpan;
                 if (span == null)
+                {
+                    Logger.LogError("ActiveSpan not found");
                     return;
+                }
 
-                span.SetTag(Tags.HttpStatusCode, httpContext.Response.StatusCode);
+                Tags.HttpStatus.Set(span, httpContext.Response.StatusCode);
                 span.Finish();
             });
         }
@@ -87,7 +100,7 @@ namespace OpenTracing.Instrumentation.AspNetCore
         {
             try
             {
-                ISpanContext spanContext = Tracer.Extract(Formats.HttpHeaders, new HeaderDictionaryCarrier(request.Headers));
+                ISpanContext spanContext = Tracer.Extract(BuiltinFormats.HttpHeaders, new HeaderDictionaryCarrier(request.Headers));
                 return spanContext;
             }
             catch (Exception ex)
@@ -97,68 +110,24 @@ namespace OpenTracing.Instrumentation.AspNetCore
             }
         }
 
-        private ISpan StartSpan(ISpanContext extractedSpanContext, HttpRequest request)
-        {
-            var operationName = GetOperationName(request);
-
-            var span = Tracer.BuildSpan(operationName)
-                .AsChildOf(extractedSpanContext)
-                .WithTag(Tags.Component, Component)
-                .WithTag(Tags.SpanKind, Tags.SpanKindServer)
-                .WithTag(Tags.HttpMethod, request.Method)
-                .WithTag(Tags.HttpUrl, request.GetDisplayUrl())
-                .WithTag(Tags.PeerHostname, request.Host.Host)
-                .Start();
-
-            return span;
-        }
-
         private string GetOperationName(HttpRequest request)
         {
             // TODO @cweiss Make this configurable.
             return request.Path;
         }
 
-        /// <summary>
-        /// <para>This method will return the bottom-span from the stack.
-        /// If there's more than one span on the stack, it will call <see cref="ISpan.Finish"/> on them.</para>
-        /// <para>This should be called by outermost handlers who create root spans and want to finish all open spans.</para>
-        /// </summary>
-        private ISpan PopAndFinishOrphaned()
-        {
-            ISpan last = null;
-            while (TraceContext.Count > 0)
-            {
-                last = TraceContext.TryPop();
-
-                // if it hasn't been the last, it's orphaned and must be finished.
-                if (TraceContext.Count > 0)
-                {
-                    Logger.LogError("Orphaned span detected. {SpanContext}", last.Context);
-
-                    last.SetTag(Tags.Error, true);
-                    last.SetTag("error.message", "orphaned span");
-                    last.Finish();
-                }
-            }
-
-            if (last == null)
-            {
-                Logger.LogError("Span not found");
-            }
-
-            return last;
-        }
-
         private void HandleException(HttpContext httpContext, Exception exception)
         {
             try
             {
-                var span = PopAndFinishOrphaned();
+                var span = Tracer.ActiveSpan;
                 if (span == null)
+                {
+                    Logger.LogError("ActiveSpan not found");
                     return;
+                }
 
-                span.SetTag(Tags.HttpStatusCode, httpContext.Response.StatusCode);
+                Tags.HttpStatus.Set(span, httpContext.Response.StatusCode);
                 span.SetException(exception);
                 span.Finish();
             }

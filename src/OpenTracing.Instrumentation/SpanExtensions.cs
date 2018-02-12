@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using OpenTracing.Tag;
 
 namespace OpenTracing.Instrumentation
 {
@@ -8,8 +9,6 @@ namespace OpenTracing.Instrumentation
     {
         // TODO @cweiss all of this must be discussed!
 
-        private const string ErrorMessage = "error.message";
-        private const string ErrorStacktrace = "error.stacktrace";
         private const string ErrorType = "error.type";
         private const string ErrorInner = "error.inner";
         private const string ErrorData = "error.data";
@@ -21,12 +20,12 @@ namespace OpenTracing.Instrumentation
             if (span == null || ex == null)
                 return;
 
-            span.SetTag(Tags.Error, true);
+            Tags.Error.Set(span, true);
 
             var fields = new Dictionary<string, object>();
-            fields.Add(ErrorMessage, ex.Message);
+            fields.Add(LogFields.Message, ex.Message);
             fields.Add(ErrorType, ex.GetType().FullName);
-            fields.Add(ErrorStacktrace, ex.StackTrace);
+            fields.Add(LogFields.Stack, ex.StackTrace);
 
             if (ex.InnerException != null)
             {

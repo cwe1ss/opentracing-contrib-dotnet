@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using OpenTracing.Tracer.Abstractions;
+using OpenTracing.Tracer;
 
 namespace OpenTracing.Testing
 {
@@ -12,33 +12,34 @@ namespace OpenTracing.Testing
             TestTracer tracer,
             TestSpanContext spanContext,
             string operationName,
-            DateTime? startTimestamp)
-            : base(tracer, spanContext, operationName, startTimestamp)
+            DateTimeOffset? startTimestamp,
+            KeyValueListNode<object> tags)
+            : base(tracer, spanContext, operationName, startTimestamp, tags)
         {
         }
 
         public bool? GetBoolTag(string key)
         {
-            var kvp = BoolTags.FirstOrDefault(x => string.Equals(x.Key, key));
-            return kvp.Key == null ? (bool?)null : kvp.Value;
+            var kvp = base.Tags.FirstOrDefault(x => string.Equals(x.Key, key));
+            return kvp.Key == null ? null : kvp.Value as bool?;
         }
 
         public double? GetDoubleTag(string key)
         {
-            var kvp = DoubleTags.FirstOrDefault(x => string.Equals(x.Key, key));
-            return kvp.Key == null ? (double?)null : kvp.Value;
+            var kvp = base.Tags.FirstOrDefault(x => string.Equals(x.Key, key));
+            return kvp.Key == null ? null : kvp.Value as double?;
         }
 
         public int? GetIntTag(string key)
         {
-            var kvp = IntTags.FirstOrDefault(x => string.Equals(x.Key, key));
-            return kvp.Key == null ? (int?)null : kvp.Value;
+            var kvp = base.Tags.FirstOrDefault(x => string.Equals(x.Key, key));
+            return kvp.Key == null ? null : kvp.Value as int?;
         }
 
         public string GetStringTag(string key)
         {
-            var kvp = StringTags.FirstOrDefault(x => string.Equals(x.Key, key));
-            return kvp.Key == null ? null : kvp.Value;
+            var kvp = base.Tags.FirstOrDefault(x => string.Equals(x.Key, key));
+            return kvp.Key == null ? null : kvp.Value as string;
         }
     }
 }

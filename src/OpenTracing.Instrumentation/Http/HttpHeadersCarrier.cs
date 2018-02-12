@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
 using OpenTracing.Propagation;
@@ -23,26 +24,6 @@ namespace OpenTracing.Instrumentation.Http
             _headers = headers;
         }
 
-        public IEnumerable<KeyValuePair<string, string>> GetEntries()
-        {
-            foreach (var kvp in _headers)
-            {
-                yield return new KeyValuePair<string, string>(kvp.Key, kvp.ToString());
-            }
-        }
-
-        public string Get(string key)
-        {
-            IEnumerable<string> values;
-            if (_headers.TryGetValues(key, out values))
-            {
-                // TODO correct behavior?
-                return string.Join(",", values);
-            }
-
-            return null;
-        }
-
         public void Set(string key, string value)
         {
             if (_headers.Contains(key))
@@ -51,6 +32,20 @@ namespace OpenTracing.Instrumentation.Http
             }
 
             _headers.Add(key, value);
+        }
+
+        public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
+        {
+            foreach (var kvp in _headers)
+            {
+                // TODO Is string.Join() the correct behavior?
+                yield return new KeyValuePair<string, string>(kvp.Key, string.Join(",", kvp.Value));
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace OpenTracing.Tracer.Abstractions
+﻿namespace OpenTracing.Tracer
 {
     public interface IPropagator
     {

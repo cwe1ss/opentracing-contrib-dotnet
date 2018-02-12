@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
@@ -19,14 +20,17 @@ namespace OpenTracing.Instrumentation.AspNetCore
         public HeaderDictionaryCarrier(IHeaderDictionary headers)
         {
             if (headers == null)
-            {
                 throw new ArgumentNullException(nameof(headers));
-            }
 
             _headers = headers;
         }
 
-        public IEnumerable<KeyValuePair<string, string>> GetEntries()
+        public void Set(string key, string value)
+        {
+            _headers[key] = value;
+        }
+
+        public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
         {
             foreach (var kvp in _headers)
             {
@@ -34,16 +38,9 @@ namespace OpenTracing.Instrumentation.AspNetCore
             }
         }
 
-        public string Get(string key)
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            StringValues values;
-            _headers.TryGetValue(key, out values);
-            return values.ToString();
-        }
-
-        public void Set(string key, string value)
-        {
-            _headers[key] = value;
+            return GetEnumerator();
         }
     }
 }

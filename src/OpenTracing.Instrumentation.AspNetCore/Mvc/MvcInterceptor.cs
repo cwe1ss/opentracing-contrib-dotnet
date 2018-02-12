@@ -3,6 +3,7 @@ using Microsoft.Extensions.DiagnosticAdapter;
 using Microsoft.Extensions.Logging;
 using OpenTracing.Instrumentation.AspNetCore.Mvc.Proxies;
 using OpenTracing.Instrumentation.Internal;
+using OpenTracing.Tag;
 
 namespace OpenTracing.Instrumentation.AspNetCore.Mvc
 {
@@ -27,8 +28,8 @@ namespace OpenTracing.Instrumentation.AspNetCore.Mvc
 
         private readonly ProxyAdapter _proxyAdapter;
 
-        public MvcInterceptor(ILoggerFactory loggerFactory, ITracer tracer, ITraceContext traceContext)
-            : base(loggerFactory, tracer, traceContext)
+        public MvcInterceptor(ILoggerFactory loggerFactory, ITracer tracer)
+            : base(loggerFactory, tracer)
         {
             _proxyAdapter = new ProxyAdapter();
 
@@ -53,23 +54,21 @@ namespace OpenTracing.Instrumentation.AspNetCore.Mvc
             //       has been selected but no filters have run and model binding hasn't occured.
             Execute(() =>
             {
-                var parent = TraceContext.CurrentSpan;
+                var parent = Tracer.ActiveSpan;
                 if (parent == null)
                 {
-                    Logger.LogWarning("CurrentSpan not found");
+                    Logger.LogWarning("ActiveSpan not found");
                     return;
                 }
 
                 var typedActionDescriptor = ConvertActionDescriptor(actionDescriptor);
 
-                var span = Tracer.BuildSpan(ActionOperationName)
-                    .AsChildOf(parent)
-                    .WithTag(Tags.Component, Component)
-                    .WithTag(ActionTagControllerName, typedActionDescriptor.ControllerName)
-                    .WithTag(ActionTagActionName, typedActionDescriptor.ActionName)
-                    .Start();
+                var span = Tracer.BuildSpan(ActionOperationName).Start();
 
-                TraceContext.Push(span);
+                Tags.Component.Set(span, Component);
+
+                span.SetTag(ActionTagControllerName, typedActionDescriptor.ControllerName);
+                span.SetTag(ActionTagActionName, typedActionDescriptor.ActionName);
 
                 // Tells OnAfterAction that a span was created and should be finished.
                 httpContext.Items[ActionItemKey] = true;
@@ -84,10 +83,10 @@ namespace OpenTracing.Instrumentation.AspNetCore.Mvc
                 if (!httpContext.Items.ContainsKey(ActionItemKey))
                     return;
 
-                var span = TraceContext.TryPop();
+                var span = Tracer.ActiveSpan;
                 if (span == null)
                 {
-                    Logger.LogError("CurrentSpan not found");
+                    Logger.LogError("ActiveSpan not found");
                     return;
                 }
 
@@ -103,22 +102,19 @@ namespace OpenTracing.Instrumentation.AspNetCore.Mvc
 
             Execute(() =>
             {
-                var parent = TraceContext.CurrentSpan;
+                var parent = Tracer.ActiveSpan;
                 if (parent == null)
                 {
-                    Logger.LogWarning("CurrentSpan not found");
+                    Logger.LogWarning("ActiveSpan not found");
                     return;
                 }
 
                 string resultType = result.GetType().Name;
 
-                var span = Tracer.BuildSpan(ResultOperationName)
-                    .AsChildOf(parent)
-                    .WithTag(Tags.Component, Component)
-                    .WithTag(ResultTagType, resultType)
-                    .Start();
+                var span = Tracer.BuildSpan(ResultOperationName).Start();
 
-                TraceContext.Push(span);
+                Tags.Component.Set(span, Component);
+                span.SetTag(ResultTagType, resultType);
 
                 // Tells OnAfterActionResult that a span was created and should be finished.
                 actionContext.HttpContext.Items[ResultItemKey] = true;
@@ -133,10 +129,10 @@ namespace OpenTracing.Instrumentation.AspNetCore.Mvc
                 if (!actionContext.HttpContext.Items.ContainsKey(ResultItemKey))
                     return;
 
-                var span = TraceContext.TryPop();
+                var span = Tracer.ActiveSpan;
                 if (span == null)
                 {
-                    Logger.LogError("CurrentSpan not found");
+                    Logger.LogError("ActiveSpan not found");
                     return;
                 }
 

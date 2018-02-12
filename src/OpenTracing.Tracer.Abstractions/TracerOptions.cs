@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace OpenTracing.Tracer.Abstractions
+namespace OpenTracing.Tracer
 {
     public abstract class TracerOptions
     {
