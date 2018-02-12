@@ -17,15 +17,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrdersApi", "samples\Orders
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomersApi", "samples\CustomersApi\CustomersApi.csproj", "{D11AD9F6-D7F3-478D-9C1E-8F9D954C900D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Instrumentation", "src\OpenTracing.Instrumentation\OpenTracing.Instrumentation.csproj", "{A84401EA-3B7B-46A6-97A6-C0648EB4EAF2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Contrib", "src\OpenTracing.Contrib\OpenTracing.Contrib.csproj", "{A84401EA-3B7B-46A6-97A6-C0648EB4EAF2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Instrumentation.AspNetCore", "src\OpenTracing.Instrumentation.AspNetCore\OpenTracing.Instrumentation.AspNetCore.csproj", "{2484DE0B-27A7-4B85-8DC6-63D9B546DED3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Contrib.AspNetCore", "src\OpenTracing.Contrib.AspNetCore\OpenTracing.Contrib.AspNetCore.csproj", "{2484DE0B-27A7-4B85-8DC6-63D9B546DED3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Tracer.Abstractions", "src\OpenTracing.Tracer.Abstractions\OpenTracing.Tracer.Abstractions.csproj", "{ECADF3BA-B1F2-4F55-BB2F-0EE4E700C0B7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Tracer.Zipkin", "src\OpenTracing.Tracer.Zipkin\OpenTracing.Tracer.Zipkin.csproj", "{A80A5CC0-5637-4FDC-9741-087A7DA4824D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Instrumentation.Tests", "test\OpenTracing.Instrumentation.Tests\OpenTracing.Instrumentation.Tests.csproj", "{2313D9A2-7F73-4F4B-B408-895BB5F892E4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Contrib.Tests", "test\OpenTracing.Contrib.Tests\OpenTracing.Contrib.Tests.csproj", "{2313D9A2-7F73-4F4B-B408-895BB5F892E4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Testing", "src\OpenTracing.Testing\OpenTracing.Testing.csproj", "{69496566-4559-485C-9118-F3A8968253CD}"
 EndProject
