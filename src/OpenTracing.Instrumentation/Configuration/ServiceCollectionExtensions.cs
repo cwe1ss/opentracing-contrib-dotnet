@@ -12,7 +12,8 @@ namespace Microsoft.Extensions.DependencyInjection
             if (services == null)
                 throw new ArgumentNullException(nameof(services));
 
-            var builder = services.AddOpenTracingCore()
+            var builder = services
+                .AddOpenTracingCore()
                 .AddEntityFrameworkCore()
                 .AddHttpClient();
 

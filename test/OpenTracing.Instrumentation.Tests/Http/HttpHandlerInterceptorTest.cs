@@ -2,6 +2,7 @@ using System;
 using System.Net.Http;
 using Microsoft.Extensions.Logging;
 using OpenTracing.Instrumentation.Http;
+using OpenTracing.Tag;
 using OpenTracing.Testing;
 using Xunit;
 
@@ -80,10 +81,10 @@ namespace OpenTracing.Instrumentation.Tests.Http
 
             var newSpan = (TestSpan)request.Properties[PropertySpan];
 
-            Assert.Equal("HttpHandler", newSpan.GetStringTag(Tags.Component));
-            Assert.Equal(Tags.SpanKindClient, newSpan.GetStringTag(Tags.SpanKind));
-            Assert.Equal("http://www.example.com/api/values", newSpan.GetStringTag(Tags.HttpUrl));
-            Assert.Equal("GET", newSpan.GetStringTag(Tags.HttpMethod));
+            Assert.Equal("HttpHandler", newSpan.GetStringTag(Tags.Component.Key));
+            Assert.Equal(Tags.SpanKindClient, newSpan.GetStringTag(Tags.SpanKind.Key));
+            Assert.Equal("http://www.example.com/api/values", newSpan.GetStringTag(Tags.HttpUrl.Key));
+            Assert.Equal("GET", newSpan.GetStringTag(Tags.HttpMethod.Key));
         }
 
         [Fact]

@@ -37,9 +37,9 @@ namespace OpenTracing.Tracer
 
             IPropagator propagator;
 
-            if (!_options.Propagators.TryGetValue(format.Name, out propagator))
+            if (!_options.Propagators.TryGetValue(format, out propagator))
             {
-                throw new UnsupportedFormatException($"The format '{format.Name}' is not supported.");
+                throw new UnsupportedFormatException($"The format '{format}' is not supported.");
             }
 
             propagator.Inject(spanContext, carrier);
@@ -52,9 +52,9 @@ namespace OpenTracing.Tracer
 
             IPropagator propagator;
 
-            if (!_options.Propagators.TryGetValue(format.Name, out propagator))
+            if (!_options.Propagators.TryGetValue(format, out propagator))
             {
-                throw new UnsupportedFormatException($"The format '{format.Name}' is not supported.");
+                throw new UnsupportedFormatException($"The format '{format}' is not supported.");
             }
 
             return propagator.Extract(carrier);

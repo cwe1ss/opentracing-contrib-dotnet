@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using OpenTracing.Propagation;
 
 namespace OpenTracing.Tracer
 {
     public abstract class TracerOptions
     {
-        public Dictionary<string, IPropagator> Propagators { get; } = new Dictionary<string, IPropagator>();
+        public Dictionary<IFormat, IPropagator> Propagators { get; } = new Dictionary<IFormat, IPropagator>();
     }
 }

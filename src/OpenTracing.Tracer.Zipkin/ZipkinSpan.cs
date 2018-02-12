@@ -56,7 +56,7 @@ namespace OpenTracing.Tracer.Zipkin
             if (_annotations == null)
                 _annotations = new List<Annotation>();
 
-            _annotations.Add(new Annotation(timestamp, value, _endpoint));
+            _annotations.Add(new Annotation(timestamp.UtcDateTime, value, _endpoint));
         }
 
         private ISpan AddTag(string key, object value)
@@ -79,11 +79,11 @@ namespace OpenTracing.Tracer.Zipkin
 
             string stringValue = value?.ToString();
 
-            if (key == Tags.SpanKind && stringValue == Tags.SpanKindServer)
+            if (key == Tags.SpanKind.Key && stringValue == Tags.SpanKindServer)
             {
                 annotationValue = AnnotationConstants.ServerReceive;
             }
-            else if (key == Tags.SpanKind && stringValue == Tags.SpanKindClient)
+            else if (key == Tags.SpanKind.Key && stringValue == Tags.SpanKindClient)
             {
                 annotationValue = AnnotationConstants.ClientSend;
             }
@@ -93,7 +93,7 @@ namespace OpenTracing.Tracer.Zipkin
                 if (_annotations == null)
                     _annotations = new List<Annotation>();
 
-                _annotations.Add(new Annotation(StartTimestamp, annotationValue, _endpoint));
+                _annotations.Add(new Annotation(StartTimestamp.UtcDateTime, annotationValue, _endpoint));
                 return true;
             }
 
@@ -105,7 +105,7 @@ namespace OpenTracing.Tracer.Zipkin
             if (_binaryAnnotations == null)
                 _binaryAnnotations = new List<BinaryAnnotation>();
 
-            if (key == Tags.Component)
+            if (key == Tags.Component.Key)
                 key = AnnotationConstants.LocalComponent;
 
             _binaryAnnotations.Add(new BinaryAnnotation(key, value, _endpoint));

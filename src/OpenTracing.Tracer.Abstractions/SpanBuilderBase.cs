@@ -99,7 +99,11 @@ namespace OpenTracing.Tracer
 
         public IScope StartActive(bool finishOnDispose)
         {
+            ISpan span = Start();
 
+            IScope scope = _tracer.ScopeManager.Activate(span, finishOnDispose);
+
+            return scope;
         }
 
         public ISpan Start()
@@ -112,13 +116,7 @@ namespace OpenTracing.Tracer
                 AsChildOf(parent);
             }
 
-            var span = CreateSpan();
-
-            span.Parent = parent;
-
-            _tracer.ActiveSpan = span;
-
-            return span;
+            return CreateSpan();
         }
 
         protected abstract SpanBase CreateSpan();

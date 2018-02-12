@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using OpenTracing.Tracer.Abstractions;
 using OpenTracing.Propagation;
 
 namespace OpenTracing.Tracer.Zipkin.Propagation
@@ -55,7 +54,7 @@ namespace OpenTracing.Tracer.Zipkin.Propagation
             bool sampled = false;
             Dictionary<string, string> baggage = null;
 
-            foreach (var entry in textMap.GetEntries())
+            foreach (var entry in textMap)
             {
                 if (string.Equals(entry.Key, TraceIdHeader, StringComparison.OrdinalIgnoreCase))
                 {

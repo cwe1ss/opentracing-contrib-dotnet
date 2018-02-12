@@ -19,8 +19,6 @@ namespace OpenTracing.Tracer
 
         public ISpanContext Context => _context;
 
-        internal ISpan Parent { get; set; }
-
         public string OperationName { get; private set; }
 
         public DateTimeOffset StartTimestamp => Duration.StartTimestamp;

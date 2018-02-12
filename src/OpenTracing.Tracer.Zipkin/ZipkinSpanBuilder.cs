@@ -12,7 +12,7 @@ namespace OpenTracing.Tracer.Zipkin
         private readonly ZipkinTracer _tracer;
 
         public ZipkinSpanBuilder(ZipkinTracer tracer, string operationName)
-            : base(operationName)
+            : base(tracer, operationName)
         {
             if (tracer == null)
                 throw new ArgumentNullException(nameof(tracer));
@@ -20,11 +20,11 @@ namespace OpenTracing.Tracer.Zipkin
             _tracer = tracer;
         }
 
-        public override ISpan Start()
+        public override ISpan CreateSpan()
         {
             ZipkinSpanContext context = GetOrCreateContext();
 
-            var span = new ZipkinSpan(_tracer, context, OperationName, StartTimestamp);
+            var span = new ZipkinSpan(_tracer, context, OperationName, StartTimestamp?.UtcDateTime);
 
             SetSpanTags(span);
 
