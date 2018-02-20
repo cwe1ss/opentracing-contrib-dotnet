@@ -5,8 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\OpenTracing.Contrib\OpenTracing.Contrib.csproj" />
-    <ProjectReference Include="..\..\src\OpenTracing.Testing\OpenTracing.Testing.csproj" />
+    <ProjectReference Include="..\..\src\OpenTracing.Contrib.AspNetCore\OpenTracing.Contrib.AspNetCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>

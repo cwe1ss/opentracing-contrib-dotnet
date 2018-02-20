@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Samples.CustomersApi.DataStore;
+using Shared;
 
 namespace Samples.CustomersApi
 {
@@ -31,11 +32,6 @@ namespace Samples.CustomersApi
             services.AddOpenTracing()   // Adds default instrumentations (HttpClient, EFCore)
                 .AddAspNetCore();       // Adds ASP.NET Core request instrumentation and auto-starts instrumentation
 
-            // Send traces to Zipkin
-            services.AddZipkinTracer(options => options
-                .WithZipkinUri("http://localhost:9411")
-                .WithServiceName("customers"));
-
             // Adds an InMemory-Sqlite DB to show EFCore traces.
             services
                 .AddEntityFrameworkSqlite()
@@ -53,6 +49,8 @@ namespace Samples.CustomersApi
 
         public void Configure(IApplicationBuilder app)
         {
+            ZipkinHelper.ConfigureZipkin(app);
+
             // Load some dummy data into the InMemory db.
             BootstrapDataStore(app.ApplicationServices);
 
@@ -63,8 +61,7 @@ namespace Samples.CustomersApi
 
         public void BootstrapDataStore(IServiceProvider serviceProvider)
         {
-            var serviceScopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
-            using (var scope = serviceScopeFactory.CreateScope())
+            using (var scope = serviceProvider.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<CustomerDbContext>();
                 dbContext.Seed();

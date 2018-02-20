@@ -1,4 +1,5 @@
 using System.IO;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
 namespace Samples.OrdersApi
@@ -7,15 +8,15 @@ namespace Samples.OrdersApi
     {
         public static void Main(string[] args)
         {
-            var host = new WebHostBuilder()
-                .UseKestrel()
-                .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseIISIntegration()
-                .UseUrls(Constants.OrdersUrl)
-                .UseStartup<Startup>()
-                .Build();
+            BuildWebHost(args).Run();
+        }
 
-            host.Run();
+        public static IWebHost BuildWebHost(string[] args)
+        {
+            return WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>()
+                .UseUrls(Constants.OrdersUrl)
+                .Build();
         }
     }
 }

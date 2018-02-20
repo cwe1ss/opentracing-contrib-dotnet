@@ -49,9 +49,14 @@ namespace OpenTracing.Contrib.AspNetCore
 
                 var operationName = GetOperationName(request);
 
-                var span = Tracer.BuildSpan(operationName)
+                var scope = Tracer.BuildSpan(operationName)
                     .AsChildOf(extractedSpanContext)
-                    .Start();
+                    .StartActive(finishSpanOnDispose: true);
+
+                // Make sure the scope is disposed at the end of the request.
+                httpContext.Response.RegisterForDispose(scope);
+
+                var span = scope.Span;
 
                 Tags.Component.Set(span, Component);
                 Tags.SpanKind.Set(span, Tags.SpanKindServer);

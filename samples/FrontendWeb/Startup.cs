@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Shared;
 
 namespace Samples.FrontendWeb
 {
@@ -28,12 +29,6 @@ namespace Samples.FrontendWeb
             services.AddOpenTracing()
                 .AddAspNetCore();
 
-            // Send traces to Zipkin
-            services.AddZipkinTracer(options => options
-                .WithZipkinUri("http://localhost:9411")
-                .WithServiceName("frontend")
-                .WithProbabilisticSampler(0.5));
-
             services.AddSingleton<HttpClient>();
 
             services.AddMvc();
@@ -41,6 +36,8 @@ namespace Samples.FrontendWeb
 
         public void Configure(IApplicationBuilder app)
         {
+            ZipkinHelper.ConfigureZipkin(app);
+
             app.UseDeveloperExceptionPage();
 
             app.UseMvcWithDefaultRoute();

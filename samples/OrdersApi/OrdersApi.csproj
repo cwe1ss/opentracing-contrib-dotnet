@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Constants\Constants.csproj" />
+    <ProjectReference Include="..\Shared\Shared.csproj" />
     <ProjectReference Include="..\..\src\OpenTracing.Contrib.AspNetCore\OpenTracing.Contrib.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\OpenTracing.Tracer.Zipkin\OpenTracing.Tracer.Zipkin.csproj" />
   </ItemGroup>

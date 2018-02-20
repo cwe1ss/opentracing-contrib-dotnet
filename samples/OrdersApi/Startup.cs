@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Shared;
 
 namespace Samples.OrdersApi
 {
@@ -27,11 +28,6 @@ namespace Samples.OrdersApi
             services.AddOpenTracing()
                 .AddAspNetCore();
 
-            // Send traces to Zipkin
-            services.AddZipkinTracer(options => options
-                .WithZipkinUri("http://localhost:9411")
-                .WithServiceName("orders"));
-
             services.AddSingleton<HttpClient>();
 
             services.AddMvc();
@@ -39,6 +35,8 @@ namespace Samples.OrdersApi
 
         public void Configure(IApplicationBuilder app)
         {
+            ZipkinHelper.ConfigureZipkin(app);
+
             app.UseDeveloperExceptionPage();
 
             app.UseMvc();

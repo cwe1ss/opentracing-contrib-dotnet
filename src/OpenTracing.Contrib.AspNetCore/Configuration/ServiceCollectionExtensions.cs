@@ -1,7 +1,9 @@
 using System;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using OpenTracing;
 using OpenTracing.Contrib;
 using OpenTracing.Contrib.Configuration;
+using OpenTracing.Util;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -24,6 +26,8 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             if (services == null)
                 throw new ArgumentNullException(nameof(services));
+
+            services.TryAddSingleton<ITracer>(GlobalTracer.Instance);
 
             services.TryAddSingleton<IInstrumentor, Instrumentor>();
 

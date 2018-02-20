@@ -18,9 +18,7 @@ Properties {
 
     # A list of projects for which NuGet packages should be created
     $NugetLibraries = @(
-        "src/OpenTracing.Instrumentation",
-        "src/OpenTracing.Instrumentation.AspNetCore",
-        "src/OpenTracing.Testing",
+        "src/OpenTracing.Contrib.AspNetCore",
         "src/OpenTracing.Tracer.Abstractions",
         "src/OpenTracing.Tracer.Zipkin"
     )
@@ -28,7 +26,7 @@ Properties {
 
 FormatTaskName ("`n" + ("-"*25) + "[{0}]" + ("-"*25) + "`n")
 
-Task Default -depends init, clean, dotnet-install, dotnet-restore, dotnet-build, dotnet-test, dotnet-pack
+Task Default -depends init, clean, dotnet-install, dotnet-build, dotnet-test, dotnet-pack
 
 Task init {
 
@@ -70,14 +68,9 @@ Task dotnet-install {
     }
 }
 
-Task dotnet-restore {
-
-    exec { dotnet restore -v Minimal }
-}
-
 Task dotnet-build {
 
-    exec { dotnet build -c $BuildConfiguration --version-suffix $BuildNumber }
+    exec { dotnet build -c $BuildConfiguration --version-suffix $BuildNumber --no-incremental }
 }
 
 Task dotnet-test {
@@ -123,6 +116,6 @@ Task dotnet-pack {
         Write-Host "Packaging $library to $libraryOutput"
         Write-Host ""
 
-        exec { dotnet pack $library -c $BuildConfiguration --version-suffix $BuildNumber --no-build --include-symbols -o $libraryOutput }
+        exec { dotnet pack $library -c $BuildConfiguration --version-suffix $BuildNumber --no-restore --no-build --include-symbols -o $libraryOutput }
     }
 }

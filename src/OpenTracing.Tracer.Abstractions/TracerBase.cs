@@ -39,7 +39,7 @@ namespace OpenTracing.Tracer
 
             if (!_options.Propagators.TryGetValue(format, out propagator))
             {
-                throw new UnsupportedFormatException($"The format '{format}' is not supported.");
+                throw new InvalidOperationException($"The format '{format}' is not supported.");
             }
 
             propagator.Inject(spanContext, carrier);
@@ -54,7 +54,7 @@ namespace OpenTracing.Tracer
 
             if (!_options.Propagators.TryGetValue(format, out propagator))
             {
-                throw new UnsupportedFormatException($"The format '{format}' is not supported.");
+                throw new InvalidOperationException($"The format '{format}' is not supported.");
             }
 
             return propagator.Extract(carrier);
