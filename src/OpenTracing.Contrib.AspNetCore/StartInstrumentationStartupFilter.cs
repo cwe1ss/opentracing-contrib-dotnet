@@ -10,10 +10,7 @@ namespace OpenTracing.Contrib.AspNetCore
 
         public StartInstrumentationStartupFilter(IInstrumentor instrumentor)
         {
-            if (instrumentor == null)
-                throw new ArgumentNullException(nameof(instrumentor));
-
-            _instrumentor = instrumentor;
+            _instrumentor = instrumentor ?? throw new ArgumentNullException(nameof(instrumentor));
         }
 
         public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)

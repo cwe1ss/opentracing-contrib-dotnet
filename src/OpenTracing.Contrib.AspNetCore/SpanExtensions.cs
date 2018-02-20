@@ -23,6 +23,7 @@ namespace OpenTracing.Contrib
             Tags.Error.Set(span, true);
 
             var fields = new Dictionary<string, object>();
+
             fields.Add(LogFields.Message, ex.Message);
             fields.Add(ErrorType, ex.GetType().FullName);
             fields.Add(LogFields.Stack, ex.StackTrace);

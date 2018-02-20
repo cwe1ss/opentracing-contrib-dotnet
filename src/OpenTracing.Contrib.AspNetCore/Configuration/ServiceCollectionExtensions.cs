@@ -1,7 +1,9 @@
 using System;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using OpenTracing;
 using OpenTracing.Contrib;
+using OpenTracing.Contrib.AspNetCore;
 using OpenTracing.Contrib.Configuration;
 using OpenTracing.Util;
 
@@ -16,6 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             var builder = services
                 .AddOpenTracingCore()
+                .AddAspNetCore()
                 .AddEntityFrameworkCore()
                 .AddHttpClient();
 
@@ -30,6 +33,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<ITracer>(GlobalTracer.Instance);
 
             services.TryAddSingleton<IInstrumentor, Instrumentor>();
+
+            services.AddTransient<IStartupFilter, StartInstrumentationStartupFilter>();
 
             var builder = new InstrumentationBuilder(services);
 

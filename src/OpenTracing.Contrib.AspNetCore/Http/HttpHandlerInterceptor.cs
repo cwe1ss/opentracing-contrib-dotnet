@@ -45,7 +45,16 @@ namespace OpenTracing.Contrib.Http
                     return;
                 }
 
-                var span = StartSpan(request);
+                string operationName = GetOperationName(request);
+
+                ISpan span = Tracer.BuildSpan(operationName)
+                    .WithTag(Tags.SpanKind.Key, Tags.SpanKindClient)
+                    .WithTag(Tags.Component.Key, Component)
+                    .WithTag(Tags.HttpMethod.Key, request.Method.ToString())
+                    .WithTag(Tags.HttpUrl.Key, request.RequestUri.ToString())
+                    .WithTag(Tags.PeerHostname.Key, request.RequestUri.Host)
+                    .WithTag(Tags.PeerPort.Key, request.RequestUri.Port)
+                    .Start();
 
                 Tracer.Inject(span.Context, BuiltinFormats.HttpHeaders, new HttpHeadersCarrier(request.Headers));
 
@@ -84,22 +93,6 @@ namespace OpenTracing.Contrib.Http
             // TODO @cweiss other hooks?
 
             return false;
-        }
-
-        private ISpan StartSpan(HttpRequestMessage request)
-        {
-            string operationName = GetOperationName(request);
-
-            ISpan span = Tracer.BuildSpan(operationName).Start();
-
-            Tags.SpanKind.Set(span, Tags.SpanKindClient);
-            Tags.Component.Set(span, Component);
-            Tags.HttpMethod.Set(span, request.Method.ToString());
-            Tags.HttpUrl.Set(span, request.RequestUri.ToString());
-            Tags.PeerHostname.Set(span, request.RequestUri.Host);
-            Tags.PeerPort.Set(span, request.RequestUri.Port);
-
-            return span;
         }
 
         private string GetOperationName(HttpRequestMessage request)

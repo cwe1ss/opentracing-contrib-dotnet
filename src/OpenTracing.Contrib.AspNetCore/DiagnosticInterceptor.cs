@@ -59,5 +59,20 @@ namespace OpenTracing.Contrib
                 Logger.LogError(0, ex, "{Event} failed", callerMemberName);
             }
         }
+
+        protected void DisposeActiveScope()
+        {
+            Execute(() =>
+            {
+                var scope = Tracer.ScopeManager.Active;
+                if (scope == null)
+                {
+                    Logger.LogError("ActiveSpan not found");
+                    return;
+                }
+
+                scope.Dispose();
+            });
+        }
     }
 }

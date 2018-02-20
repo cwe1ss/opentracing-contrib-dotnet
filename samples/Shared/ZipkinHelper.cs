@@ -1,3 +1,4 @@
+using System.Net.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,11 +19,17 @@ namespace Shared
             // Zipkin Configuration
 
             var loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>();
-
             var zipkinLogger = new ZipkinLogger(loggerFactory, "zipkin4net");
-            var zipkinSender = new HttpZipkinSender("http://localhost:9411", "application/json");
+
+            var zipkinHttpClient = new HttpClient(new SetOtIgnoreHandler
+            {
+                InnerHandler = new HttpClientHandler()
+            });
+
+            var zipkinSender = new HttpZipkinSender(zipkinHttpClient, "http://localhost:9411", "application/json");
             var zipkinTracer = new ZipkinTracer(zipkinSender, new JSONSpanSerializer());
 
+            TraceManager.SamplingRate = 1.0f;
             TraceManager.RegisterTracer(zipkinTracer);
             TraceManager.Start(zipkinLogger);
 

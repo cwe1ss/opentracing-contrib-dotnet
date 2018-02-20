@@ -18,12 +18,10 @@ namespace OpenTracing.Contrib.AspNetCore.Mvc
         private const string Component = "AspNetCoreMvc";
 
         private const string ActionOperationName = "mvc_action";
-        private const string ActionItemKey = "ot-MvcAction";
         private const string ActionTagActionName = "action";
         private const string ActionTagControllerName = "controller";
 
         private const string ResultOperationName = "mvc_result";
-        private const string ResultItemKey = "ot-MvcResult";
         private const string ResultTagType = "result.type";
 
         private readonly ProxyAdapter _proxyAdapter;
@@ -54,44 +52,20 @@ namespace OpenTracing.Contrib.AspNetCore.Mvc
             //       has been selected but no filters have run and model binding hasn't occured.
             Execute(() =>
             {
-                var parent = Tracer.ActiveSpan;
-                if (parent == null)
-                {
-                    Logger.LogWarning("ActiveSpan not found");
-                    return;
-                }
-
                 var typedActionDescriptor = ConvertActionDescriptor(actionDescriptor);
 
-                var span = Tracer.BuildSpan(ActionOperationName).Start();
-
-                Tags.Component.Set(span, Component);
-
-                span.SetTag(ActionTagControllerName, typedActionDescriptor.ControllerName);
-                span.SetTag(ActionTagActionName, typedActionDescriptor.ActionName);
-
-                // Tells OnAfterAction that a span was created and should be finished.
-                httpContext.Items[ActionItemKey] = true;
+                Tracer.BuildSpan(ActionOperationName)
+                    .WithTag(Tags.Component.Key, Component)
+                    .WithTag(ActionTagControllerName, typedActionDescriptor.ControllerName)
+                    .WithTag(ActionTagActionName, typedActionDescriptor.ActionName)
+                    .StartActive(finishSpanOnDispose: true);
             });
         }
 
         [DiagnosticName(EventAfterAction)]
         public void OnAfterAction(HttpContext httpContext)
         {
-            Execute(() =>
-            {
-                if (!httpContext.Items.ContainsKey(ActionItemKey))
-                    return;
-
-                var span = Tracer.ActiveSpan;
-                if (span == null)
-                {
-                    Logger.LogError("ActiveSpan not found");
-                    return;
-                }
-
-                span.Finish();
-            });
+            DisposeActiveScope();
         }
 
         [DiagnosticName(EventBeforeActionResult)]
@@ -102,42 +76,19 @@ namespace OpenTracing.Contrib.AspNetCore.Mvc
 
             Execute(() =>
             {
-                var parent = Tracer.ActiveSpan;
-                if (parent == null)
-                {
-                    Logger.LogWarning("ActiveSpan not found");
-                    return;
-                }
-
                 string resultType = result.GetType().Name;
 
-                var span = Tracer.BuildSpan(ResultOperationName).Start();
-
-                Tags.Component.Set(span, Component);
-                span.SetTag(ResultTagType, resultType);
-
-                // Tells OnAfterActionResult that a span was created and should be finished.
-                actionContext.HttpContext.Items[ResultItemKey] = true;
+                Tracer.BuildSpan(ResultOperationName)
+                    .WithTag(Tags.Component.Key, Component)
+                    .WithTag(ResultTagType, resultType)
+                    .StartActive(finishSpanOnDispose: true);
             });
         }
 
         [DiagnosticName(EventAfterActionResult)]
         public void OnAfterActionResult(IActionContext actionContext)
         {
-            Execute(() =>
-            {
-                if (!actionContext.HttpContext.Items.ContainsKey(ResultItemKey))
-                    return;
-
-                var span = Tracer.ActiveSpan;
-                if (span == null)
-                {
-                    Logger.LogError("ActiveSpan not found");
-                    return;
-                }
-
-                span.Finish();
-            });
+            DisposeActiveScope();
         }
 
         private IActionDescriptor ConvertActionDescriptor(object actionDescriptor)

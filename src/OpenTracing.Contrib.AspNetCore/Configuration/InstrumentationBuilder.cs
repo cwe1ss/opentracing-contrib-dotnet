@@ -9,10 +9,7 @@ namespace OpenTracing.Contrib.Configuration
 
         public InstrumentationBuilder(IServiceCollection services)
         {
-            if (services == null)
-                throw new ArgumentNullException(nameof(services));
-
-            Services = services;
+            Services = services ?? throw new ArgumentNullException(nameof(services));
         }
     }
 }

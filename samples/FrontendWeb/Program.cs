@@ -16,6 +16,7 @@ namespace Samples.FrontendWeb
             return WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
                 .UseUrls(Constants.FrontendUrl)
+                .UseOpenTracing() // Enables OpenTracing instrumentation for ASP.NET Core, HttpClient, EF Core
                 .Build();
         }
     }

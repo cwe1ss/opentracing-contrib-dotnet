@@ -51,18 +51,14 @@ namespace OpenTracing.Contrib.AspNetCore
 
                 var scope = Tracer.BuildSpan(operationName)
                     .AsChildOf(extractedSpanContext)
+                    .WithTag(Tags.Component.Key, Component)
+                    .WithTag(Tags.SpanKind.Key, Tags.SpanKindServer)
+                    .WithTag(Tags.HttpMethod.Key, request.Method)
+                    .WithTag(Tags.HttpUrl.Key, request.GetDisplayUrl())
                     .StartActive(finishSpanOnDispose: true);
 
                 // Make sure the scope is disposed at the end of the request.
                 httpContext.Response.RegisterForDispose(scope);
-
-                var span = scope.Span;
-
-                Tags.Component.Set(span, Component);
-                Tags.SpanKind.Set(span, Tags.SpanKindServer);
-                Tags.HttpMethod.Set(span, request.Method);
-                Tags.HttpUrl.Set(span, request.GetDisplayUrl());
-                Tags.PeerHostname.Set(span, request.Host.Host);
             });
         }
 
@@ -79,7 +75,6 @@ namespace OpenTracing.Contrib.AspNetCore
                 }
 
                 Tags.HttpStatus.Set(span, httpContext.Response.StatusCode);
-                span.Finish();
             });
         }
 
@@ -134,7 +129,6 @@ namespace OpenTracing.Contrib.AspNetCore
 
                 Tags.HttpStatus.Set(span, httpContext.Response.StatusCode);
                 span.SetException(exception);
-                span.Finish();
             }
             catch (Exception ex)
             {

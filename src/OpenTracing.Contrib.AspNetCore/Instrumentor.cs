@@ -12,10 +12,7 @@ namespace OpenTracing.Contrib
 
         public Instrumentor(IEnumerable<IDiagnosticInterceptor> interceptors)
         {
-            if (interceptors == null)
-                throw new ArgumentNullException(nameof(interceptors));
-
-            _interceptors = interceptors;
+            _interceptors = interceptors ?? throw new ArgumentNullException(nameof(interceptors));
         }
 
         public void Start()

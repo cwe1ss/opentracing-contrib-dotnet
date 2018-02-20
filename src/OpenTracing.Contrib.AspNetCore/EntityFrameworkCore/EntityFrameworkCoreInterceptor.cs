@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using Microsoft.Extensions.DiagnosticAdapter;
 using Microsoft.Extensions.Logging;
 using OpenTracing.Contrib.EntityFrameworkCore.Proxies;
@@ -18,9 +17,6 @@ namespace OpenTracing.Contrib.EntityFrameworkCore
         private const string TagCommandText = "ef.command";
         private const string TagMethod = "ef.method";
         private const string TagIsAsync = "ef.async";
-
-
-        private AsyncLocal<ISpan> _span = new AsyncLocal<ISpan>();
 
         public EntityFrameworkCoreInterceptor(ILoggerFactory loggerFactory, ITracer tracer)
             : base(loggerFactory, tracer)
@@ -47,17 +43,13 @@ namespace OpenTracing.Contrib.EntityFrameworkCore
                 // TODO @cweiss !! OperationName ??
                 string operationName = executeMethod;
 
-                var span = Tracer.BuildSpan(operationName).Start();
-
-                Tags.SpanKind.Set(span, Tags.SpanKindClient);
-                Tags.Component.Set(span, Component);
-                span.SetTag(TagCommandText, command.CommandText);
-
-                span.SetTag(TagCommandText, command.CommandText);
-                span.SetTag(TagMethod, executeMethod);
-                span.SetTag(TagIsAsync, isAsync);;
-
-                _span.Value = span;
+                Tracer.BuildSpan(operationName)
+                    .WithTag(Tags.SpanKind.Key, Tags.SpanKindClient)
+                    .WithTag(Tags.Component.Key, Component)
+                    .WithTag(TagCommandText, command.CommandText)
+                    .WithTag(TagMethod, executeMethod)
+                    .WithTag(TagIsAsync, isAsync)
+                    .StartActive(finishSpanOnDispose: true);
             });
         }
 
@@ -67,17 +59,7 @@ namespace OpenTracing.Contrib.EntityFrameworkCore
         [DiagnosticName(EventAfterExecuteCommand)]
         public void OnAfterExecuteCommand(IDbCommand command, string executeMethod, bool isAsync)
         {
-            Execute(() =>
-            {
-                ISpan span = _span.Value;
-                if (span == null)
-                {
-                    Logger.LogError("Span not found");
-                    return;
-                }
-
-                span.Finish();
-            });
+            DisposeActiveScope();
         }
 
         /// <summary>
@@ -88,15 +70,15 @@ namespace OpenTracing.Contrib.EntityFrameworkCore
         {
             Execute(() =>
             {
-                ISpan span = _span.Value;
-                if (span == null)
+                var scope = Tracer.ScopeManager.Active;
+                if (scope == null)
                 {
                     Logger.LogError("Span not found");
                     return;
                 }
 
-                span.SetException(exception);
-                span.Finish();
+                scope.Span.SetException(exception);
+                scope.Dispose();
             });
         }
     }
