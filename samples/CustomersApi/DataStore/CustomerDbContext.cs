@@ -1,4 +1,4 @@
-using Constants;
+using Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace Samples.CustomersApi.DataStore

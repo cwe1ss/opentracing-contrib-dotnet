@@ -1,4 +1,4 @@
-﻿namespace Constants
+﻿namespace Shared
 {
     public class Customer
     {

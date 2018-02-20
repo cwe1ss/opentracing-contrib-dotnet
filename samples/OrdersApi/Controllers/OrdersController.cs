@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Constants;
+using Shared;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using OpenTracing;
@@ -17,14 +17,8 @@ namespace Samples.OrdersApi.Controllers
 
         public OrdersController(HttpClient httpClient, ITracer tracer)
         {
-            if (httpClient == null)
-                throw new ArgumentNullException(nameof(httpClient));
-
-            if (tracer == null)
-                throw new ArgumentNullException(nameof(tracer));
-
-            _httpClient = httpClient;
-            _tracer = tracer;
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _tracer = tracer ?? throw new ArgumentNullException(nameof(tracer));
         }
 
         [HttpPost]

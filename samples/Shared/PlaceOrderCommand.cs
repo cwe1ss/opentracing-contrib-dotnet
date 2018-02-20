@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Constants
+namespace Shared
 {
     public class PlaceOrderCommand
     {

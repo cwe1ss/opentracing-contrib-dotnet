@@ -1,11 +1,10 @@
 using Microsoft.Extensions.Logging;
-using zipkin4net;
 
 namespace Shared
 {
     public class ZipkinLogger : zipkin4net.ILogger
     {
-        private readonly Microsoft.Extensions.Logging.ILogger _logger;
+        private readonly ILogger _logger;
 
         public ZipkinLogger(ILoggerFactory loggerFactory, string loggerName)
         {

@@ -1,4 +1,4 @@
-﻿namespace Samples
+﻿namespace Shared
 {
     public class Constants
     {
