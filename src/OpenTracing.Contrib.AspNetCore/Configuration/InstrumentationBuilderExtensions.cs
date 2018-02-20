@@ -1,9 +1,9 @@
 using System;
-using OpenTracing.Contrib;
 using OpenTracing.Contrib.AspNetCore;
-using OpenTracing.Contrib.AspNetCore.Mvc;
-using OpenTracing.Contrib.EntityFrameworkCore;
-using OpenTracing.Contrib.Http;
+using OpenTracing.Contrib.AspNetCore.Interceptors.EntityFrameworkCore;
+using OpenTracing.Contrib.AspNetCore.Interceptors.HttpOut;
+using OpenTracing.Contrib.AspNetCore.Interceptors.Mvc;
+using OpenTracing.Contrib.AspNetCore.Interceptors.RequestIn;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DiagnosticAdapter;
 using Microsoft.Extensions.Logging;
-using OpenTracing.Contrib.AspNetCore.Mvc.Proxies;
-using OpenTracing.Contrib.Internal;
+using OpenTracing.Contrib.AspNetCore.Internal;
 using OpenTracing.Tag;
 
-namespace OpenTracing.Contrib.AspNetCore.Mvc
+namespace OpenTracing.Contrib.AspNetCore.Interceptors.Mvc
 {
     public class MvcInterceptor : DiagnosticInterceptor
     {

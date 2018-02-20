@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace OpenTracing.Contrib.Configuration
+namespace OpenTracing.Contrib.AspNetCore.Configuration
 {
     public class InstrumentationBuilder : IInstrumentationBuilder
     {

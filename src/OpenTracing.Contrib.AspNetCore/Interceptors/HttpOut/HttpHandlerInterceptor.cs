@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using OpenTracing.Propagation;
 using OpenTracing.Tag;
 
-namespace OpenTracing.Contrib.Http
+namespace OpenTracing.Contrib.AspNetCore.Interceptors.HttpOut
 {
     public class HttpHandlerInterceptor : DiagnosticInterceptor
     {

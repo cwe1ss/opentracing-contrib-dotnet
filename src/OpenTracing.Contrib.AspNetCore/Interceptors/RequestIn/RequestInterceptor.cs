@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using OpenTracing.Propagation;
 using OpenTracing.Tag;
 
-namespace OpenTracing.Contrib.AspNetCore
+namespace OpenTracing.Contrib.AspNetCore.Interceptors.RequestIn
 {
     public class RequestInterceptor : DiagnosticInterceptor
     {

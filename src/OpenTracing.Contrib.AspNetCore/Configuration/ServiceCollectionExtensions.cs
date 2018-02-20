@@ -2,9 +2,8 @@ using System;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using OpenTracing;
-using OpenTracing.Contrib;
 using OpenTracing.Contrib.AspNetCore;
-using OpenTracing.Contrib.Configuration;
+using OpenTracing.Contrib.AspNetCore.Configuration;
 using OpenTracing.Util;
 
 namespace Microsoft.Extensions.DependencyInjection

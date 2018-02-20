@@ -1,6 +1,6 @@
 using System;
 
-namespace OpenTracing.Contrib
+namespace OpenTracing.Contrib.AspNetCore
 {
     public interface IDiagnosticInterceptor : IDisposable
     {

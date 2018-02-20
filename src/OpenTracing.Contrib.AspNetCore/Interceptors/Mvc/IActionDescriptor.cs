@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 
-namespace OpenTracing.Contrib.AspNetCore.Mvc.Proxies
+namespace OpenTracing.Contrib.AspNetCore.Interceptors.Mvc
 {
     public interface IActionDescriptor
     {

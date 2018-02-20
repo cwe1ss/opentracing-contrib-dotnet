@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace OpenTracing.Contrib.AspNetCore.Mvc.Proxies
+namespace OpenTracing.Contrib.AspNetCore.Interceptors.Mvc
 {
     public interface IActionContext
     {

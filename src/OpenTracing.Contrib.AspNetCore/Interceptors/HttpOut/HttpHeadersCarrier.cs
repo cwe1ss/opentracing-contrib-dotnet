@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Net.Http.Headers;
 using OpenTracing.Propagation;
 
-namespace OpenTracing.Contrib.Http
+namespace OpenTracing.Contrib.AspNetCore.Interceptors.HttpOut
 {
     /// <summary>
     /// A <see cref="ITextMap"/> which allows <see cref="HttpHeaders"/> implementations to be used as carrier objects.

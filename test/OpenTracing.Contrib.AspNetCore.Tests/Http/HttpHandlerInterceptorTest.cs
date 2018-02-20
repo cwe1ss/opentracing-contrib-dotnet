@@ -1,7 +1,7 @@
 using System;
 using System.Net.Http;
 using Microsoft.Extensions.Logging;
-using OpenTracing.Contrib.Http;
+using OpenTracing.Contrib.AspNetCore.Interceptors.HttpOut;
 using OpenTracing.Mock;
 using OpenTracing.Propagation;
 using OpenTracing.Tag;

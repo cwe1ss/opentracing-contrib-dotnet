@@ -1,10 +1,9 @@
 using System;
 using Microsoft.Extensions.DiagnosticAdapter;
 using Microsoft.Extensions.Logging;
-using OpenTracing.Contrib.EntityFrameworkCore.Proxies;
 using OpenTracing.Tag;
 
-namespace OpenTracing.Contrib.EntityFrameworkCore
+namespace OpenTracing.Contrib.AspNetCore.Interceptors.EntityFrameworkCore
 {
     public class EntityFrameworkCoreInterceptor : DiagnosticInterceptor
     {

@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 
-namespace OpenTracing.Contrib
+namespace OpenTracing.Contrib.AspNetCore
 {
     public abstract class DiagnosticInterceptor : IDiagnosticInterceptor
     {

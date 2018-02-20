@@ -1,4 +1,3 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2027
@@ -19,11 +18,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomersApi", "samples\Cus
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Contrib.AspNetCore", "src\OpenTracing.Contrib.AspNetCore\OpenTracing.Contrib.AspNetCore.csproj", "{2484DE0B-27A7-4B85-8DC6-63D9B546DED3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Tracer.Abstractions", "src\OpenTracing.Tracer.Abstractions\OpenTracing.Tracer.Abstractions.csproj", "{ECADF3BA-B1F2-4F55-BB2F-0EE4E700C0B7}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Tracer.Zipkin", "src\OpenTracing.Tracer.Zipkin\OpenTracing.Tracer.Zipkin.csproj", "{A80A5CC0-5637-4FDC-9741-087A7DA4824D}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Tracer.BatchReporter.Tests", "test\OpenTracing.Tracer.BatchReporter.Tests\OpenTracing.Tracer.BatchReporter.Tests.csproj", "{F3DC445C-FEA6-455B-9DD6-DE160ADFB05C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing", "..\..\opentracing\opentracing-csharp\src\OpenTracing\OpenTracing.csproj", "{89E1A35B-C1C7-4C0D-ACEE-C08EF89F325E}"
 EndProject
@@ -55,18 +50,10 @@ Global
 		{2484DE0B-27A7-4B85-8DC6-63D9B546DED3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2484DE0B-27A7-4B85-8DC6-63D9B546DED3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2484DE0B-27A7-4B85-8DC6-63D9B546DED3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ECADF3BA-B1F2-4F55-BB2F-0EE4E700C0B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ECADF3BA-B1F2-4F55-BB2F-0EE4E700C0B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ECADF3BA-B1F2-4F55-BB2F-0EE4E700C0B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ECADF3BA-B1F2-4F55-BB2F-0EE4E700C0B7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A80A5CC0-5637-4FDC-9741-087A7DA4824D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A80A5CC0-5637-4FDC-9741-087A7DA4824D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A80A5CC0-5637-4FDC-9741-087A7DA4824D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A80A5CC0-5637-4FDC-9741-087A7DA4824D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F3DC445C-FEA6-455B-9DD6-DE160ADFB05C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F3DC445C-FEA6-455B-9DD6-DE160ADFB05C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F3DC445C-FEA6-455B-9DD6-DE160ADFB05C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F3DC445C-FEA6-455B-9DD6-DE160ADFB05C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{89E1A35B-C1C7-4C0D-ACEE-C08EF89F325E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{89E1A35B-C1C7-4C0D-ACEE-C08EF89F325E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89E1A35B-C1C7-4C0D-ACEE-C08EF89F325E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -85,9 +72,7 @@ Global
 		{F2849F7B-C73B-4160-8151-77CD201CF9BD} = {36333C22-54F7-403C-ABC4-BECE4EE3F52D}
 		{D11AD9F6-D7F3-478D-9C1E-8F9D954C900D} = {36333C22-54F7-403C-ABC4-BECE4EE3F52D}
 		{2484DE0B-27A7-4B85-8DC6-63D9B546DED3} = {420F640A-E23F-457C-BEC7-1DEAD1C592F1}
-		{ECADF3BA-B1F2-4F55-BB2F-0EE4E700C0B7} = {420F640A-E23F-457C-BEC7-1DEAD1C592F1}
 		{A80A5CC0-5637-4FDC-9741-087A7DA4824D} = {420F640A-E23F-457C-BEC7-1DEAD1C592F1}
-		{F3DC445C-FEA6-455B-9DD6-DE160ADFB05C} = {F9AD8B6F-1F59-4678-B9CF-9CD87172A111}
 		{29D93B24-CEF9-48BA-9DE5-961E1C0D52E3} = {F9AD8B6F-1F59-4678-B9CF-9CD87172A111}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

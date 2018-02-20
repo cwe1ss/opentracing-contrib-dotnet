@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using OpenTracing.Propagation;
 
-namespace OpenTracing.Contrib.AspNetCore
+namespace OpenTracing.Contrib.AspNetCore.Interceptors.RequestIn
 {
     /// <summary>
     /// A <see cref="ITextMap"/> which allows <see cref="IHeaderDictionary"/> implementations to be used as carrier objects.
