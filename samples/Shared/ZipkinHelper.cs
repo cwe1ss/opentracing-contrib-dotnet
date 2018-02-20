@@ -1,4 +1,5 @@
 using System.Net.Http;
+using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,10 +41,12 @@ namespace Shared
 
             // OpenTracing -> Zipkin Configuration
 
+            string serviceName = Assembly.GetEntryAssembly().GetName().Name;
             var otTracer = new OtTracer(
-                new AsyncLocalScopeManager(),
-                new ZipkinHttpTraceInjector(),
-                new ZipkinHttpTraceExtractor());
+               serviceName,
+               new AsyncLocalScopeManager(),
+               new ZipkinHttpTraceInjector(),
+               new ZipkinHttpTraceExtractor());
 
             GlobalTracer.Register(otTracer);
         }

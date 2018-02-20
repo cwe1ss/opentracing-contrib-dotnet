@@ -2,6 +2,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Shared
 {
+    /// <summary>
+    /// Forwards log messages from "zipkin4net" to "Microsoft.Extensions.Logging".
+    /// </summary>
     public class ZipkinLogger : zipkin4net.ILogger
     {
         private readonly ILogger _logger;

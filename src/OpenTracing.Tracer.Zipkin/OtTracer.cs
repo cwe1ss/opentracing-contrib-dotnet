@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Net;
 using OpenTracing.Propagation;
 using zipkin4net;
 using zipkin4net.Transport;
@@ -16,8 +15,11 @@ namespace OpenTracing.Tracer.Zipkin
 
         public ISpan ActiveSpan => ScopeManager?.Active?.Span;
 
-        public OtTracer(IScopeManager scopeManager, ITraceInjector traceInjector, ITraceExtractor traceExtractor)
+        public string ServiceName { get; }
+
+        public OtTracer(string serviceName, IScopeManager scopeManager, ITraceInjector traceInjector, ITraceExtractor traceExtractor)
         {
+            ServiceName = serviceName ?? throw new ArgumentNullException(nameof(serviceName));
             ScopeManager = scopeManager ?? throw new ArgumentNullException(nameof(scopeManager));
 
             _traceInjector = traceInjector ?? throw new ArgumentNullException(nameof(traceInjector));

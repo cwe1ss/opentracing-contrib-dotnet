@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using OpenTracing.Tag;
-using OpenTracing.Tracer;
 using zipkin4net;
 using zipkin4net.Annotation;
 
@@ -37,6 +35,9 @@ namespace OpenTracing.Tracer.Zipkin
 
         public ISpanBuilder AddReference(string referenceType, ISpanContext referencedContext)
         {
+            if (referencedContext == null)
+                return this;
+
             // Only one reference is supported for now.
             if (_parent != null)
                 return this;
@@ -88,52 +89,15 @@ namespace OpenTracing.Tracer.Zipkin
 
         public ISpan Start()
         {
+            Trace trace = CreateTrace();
+
             OtSpanKind spanKind = GetSpanKind();
-            Trace trace = GetCurrentTraceAccordingToSpanKind(spanKind);
+            RecordAnnotation(trace, GetOpeningAnnotation(spanKind));
 
-            if (!_ignoreActiveSpan)
-            {
-                // TODO _parent && ActiveSpan !!!
-            }
+            RecordAnnotation(trace, Annotations.ServiceName(_tracer.ServiceName));
+            RecordAnnotation(trace, Annotations.Rpc(_operationName));
 
-            // Forcing sampling on child spans would lead to inconsistent data.
-            if (_parent == null)
-            {
-                var forceSampling = IsSamplingForced();
-                if (forceSampling)
-                {
-                    trace.ForceSampled();
-                }
-            }
-
-            var annotation = GetOpeningAnnotation(spanKind, _operationName);
-
-            if (_startTimestamp != default(DateTimeOffset))
-            {
-                trace.Record(annotation, _startTimestamp.UtcDateTime);
-            }
-            else
-            {
-                trace.Record(annotation);
-            }
-
-            if (_operationName != null && spanKind != OtSpanKind.Local)
-            {
-                trace.Record(Annotations.ServiceName(_operationName));
-            }
-
-            if (_tags != null)
-            {
-                foreach (var entry in _tags)
-                {
-                    if (entry.Key.Equals(Tags.SpanKind))
-                        continue;
-
-                    trace.Record(Annotations.Tag(entry.Key, entry.Value));
-                }
-            }
-
-            return new OtSpan(trace, spanKind);
+            return new OtSpan(trace, spanKind, _tags);
         }
 
         public IScope StartActive(bool finishSpanOnDispose)
@@ -143,55 +107,25 @@ namespace OpenTracing.Tracer.Zipkin
             return _tracer.ScopeManager.Activate(span, finishSpanOnDispose);
         }
 
-        private static Trace GetCurrentTraceAccordingToSpanKind(OtSpanKind spanKind)
+        private Trace CreateTrace()
         {
-            var trace = Trace.Current;
-            switch (spanKind)
-            {
-                case OtSpanKind.Server:
-                    {
-                        if (trace == null)
-                        {
-                            trace = Trace.Create();
-                            Trace.Current = trace;
-                        }
-                        break;
-                    }
-                case OtSpanKind.Client:
-                case OtSpanKind.Local:
-                    {
-                        trace = (trace == null ? Trace.Create() : trace.Child());
-                        Trace.Current = trace;
-                        break;
-                    }
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-            return trace;
-        }
+            Trace parent = _parent?.Trace;
 
-        private bool IsSamplingForced()
-        {
-            if (_tags != null && _tags.TryGetValue(Tags.SamplingPriority.Key, out string sampling) && sampling != default(string))
+            if (parent == null && !_ignoreActiveSpan)
             {
-                try
-                {
-                    var samplingPriority = int.Parse(sampling);
-                    return samplingPriority > 0;
-                }
-                catch (FormatException)
-                {
-                    return false;
-                }
+                parent = ((OtSpan)_tracer.ActiveSpan)?.Trace;
             }
-            return false;
+
+            Trace trace = parent != null ? parent.Child() : Trace.Create();
+
+            return trace;
         }
 
         private OtSpanKind GetSpanKind()
         {
             if (_tags != null && _tags.TryGetValue(Tags.SpanKind.Key, out string spanKind))
             {
-                return Tags.SpanKindClient.Equals(spanKind) ? OtSpanKind.Client : OtSpanKind.Server;
+                return Tags.SpanKindClient == spanKind ? OtSpanKind.Client : OtSpanKind.Server;
             }
             else
             {
@@ -199,7 +133,7 @@ namespace OpenTracing.Tracer.Zipkin
             }
         }
 
-        private static IAnnotation GetOpeningAnnotation(OtSpanKind spanKind, string operationName)
+        private IAnnotation GetOpeningAnnotation(OtSpanKind spanKind)
         {
             switch (spanKind)
             {
@@ -208,16 +142,22 @@ namespace OpenTracing.Tracer.Zipkin
                 case OtSpanKind.Server:
                     return Annotations.ServerRecv();
                 case OtSpanKind.Local:
-                    {
-                        if (operationName == null)
-                        {
-                            throw new NullReferenceException("Trying to start a local span without any operation name is forbidden");
-                        }
-
-                        return Annotations.LocalOperationStart(operationName);
-                    }
+                    return Annotations.LocalOperationStart(_tracer.ServiceName);
+                default:
+                    throw new NotSupportedException("SpanKind: " + spanKind + " unknown.");
             }
-            throw new NotSupportedException("SpanKind: " + spanKind + " unknown.");
+        }
+
+        private void RecordAnnotation(Trace trace, IAnnotation annotation)
+        {
+            if (_startTimestamp != default(DateTimeOffset))
+            {
+                trace.Record(annotation, _startTimestamp.UtcDateTime);
+            }
+            else
+            {
+                trace.Record(annotation);
+            }
         }
     }
 }

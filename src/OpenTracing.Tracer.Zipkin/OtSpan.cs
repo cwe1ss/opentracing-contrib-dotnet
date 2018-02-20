@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using OpenTracing.Tag;
-using OpenTracing.Tracer;
 using zipkin4net;
 using zipkin4net.Annotation;
 
@@ -11,67 +10,107 @@ namespace OpenTracing.Tracer.Zipkin
 {
     internal class OtSpan : ISpan
     {
-        private readonly Trace _trace;
         private readonly OtSpanKind _spanKind;
         private bool _isFinished;
 
-        public ISpanContext Context { get; }
+        ISpanContext ISpan.Context => Context;
 
-        public OtSpan(Trace trace, OtSpanKind spanKind)
+        public OtSpanContext Context { get; }
+
+        public Trace Trace { get; }
+
+        public OtSpan(Trace trace, OtSpanKind spanKind, Dictionary<string, string> tags)
         {
-            _trace = trace;
             _spanKind = spanKind;
+            Trace = trace;
             Context = new OtSpanContext(trace);
+
+            if (tags != null)
+            {
+                foreach (var entry in tags)
+                {
+                    SetZipkinTag(entry.Key, entry.Value);
+                }
+            }
         }
 
         public ISpan SetOperationName(string operationName)
         {
-            _trace.Record(Annotations.ServiceName(operationName));
+            Trace.Record(Annotations.Rpc(operationName));
             return this;
         }
 
         public ISpan SetTag(string key, string value)
         {
-            _trace.Record(Annotations.Tag(key, value));
-            return this;
+            return SetZipkinTag(key, value);
         }
 
         public ISpan SetTag(string key, bool value)
         {
-            return SetTag(key, value ? "1" : "0");
+            return SetZipkinTag(key, value ? "1" : "0");
         }
 
         public ISpan SetTag(string key, int value)
         {
-            return SetTag(key, Convert.ToString(value, CultureInfo.InvariantCulture));
+            return SetZipkinTag(key, Convert.ToString(value, CultureInfo.InvariantCulture));
         }
 
         public ISpan SetTag(string key, double value)
         {
-            return SetTag(key, Convert.ToString(value, CultureInfo.InvariantCulture));
+            return SetZipkinTag(key, Convert.ToString(value, CultureInfo.InvariantCulture));
+        }
+
+        private ISpan SetZipkinTag(string key, string value)
+        {
+            // Keys which result in something other than a tag.
+            if (key == Tags.SamplingPriority.Key)
+            {
+                if (int.TryParse(value, out int i2) && i2 > 0)
+                {
+                    Trace.ForceSampled();
+                }
+
+                return this;
+            }
+            else if (key == Tags.SpanKind.Key)
+            {
+                // was used in SpanBuilder to define the initial annotation.
+                return this;
+            }
+
+            // Some tags have special names in Zipkin
+            string zipkinKey;
+
+            if (key == Tags.Component.Key)
+                zipkinKey = "lc";
+            else
+                zipkinKey = key;
+
+            Trace.Record(Annotations.Tag(zipkinKey, value));
+            return this;
         }
 
         public ISpan Log(IDictionary<string, object> fields)
         {
-            _trace.Record(Annotations.Event(JoinKeyValuePairs(fields)));
+            Trace.Record(Annotations.Event(JoinKeyValuePairs(fields)));
             return this;
         }
 
         public ISpan Log(DateTimeOffset timestamp, IDictionary<string, object> fields)
         {
-            _trace.Record(Annotations.Event(JoinKeyValuePairs(fields)), timestamp.UtcDateTime);
+            Trace.Record(Annotations.Event(JoinKeyValuePairs(fields)), timestamp.UtcDateTime);
             return this;
         }
 
         public ISpan Log(string @event)
         {
-            _trace.Record(Annotations.Event(@event));
+            Trace.Record(Annotations.Event(@event));
             return this;
         }
 
         public ISpan Log(DateTimeOffset timestamp, string @event)
         {
-            _trace.Record(Annotations.Event(@event), timestamp.UtcDateTime);
+            Trace.Record(Annotations.Event(@event), timestamp.UtcDateTime);
             return this;
         }
 
@@ -89,7 +128,7 @@ namespace OpenTracing.Tracer.Zipkin
         {
             if (!_isFinished)
             {
-                _trace.Record(GetClosingAnnotation(_spanKind));
+                Trace.Record(GetClosingAnnotation(_spanKind));
                 _isFinished = true;
             }
         }
@@ -98,7 +137,7 @@ namespace OpenTracing.Tracer.Zipkin
         {
             if (!_isFinished)
             {
-                _trace.Record(GetClosingAnnotation(_spanKind), finishTimestamp.UtcDateTime);
+                Trace.Record(GetClosingAnnotation(_spanKind), finishTimestamp.UtcDateTime);
                 _isFinished = true;
             }
         }

@@ -7,7 +7,7 @@ using OpenTracing.Propagation;
 using OpenTracing.Tag;
 using Xunit;
 
-namespace OpenTracing.Contrib.Tests.Http
+namespace OpenTracing.Contrib.AspNetCore.Tests.HttpOut
 {
     public class HttpHandlerInterceptorTest
     {

@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using OpenTracing.Tracer;
 using zipkin4net;
 
 namespace OpenTracing.Tracer.Zipkin
