@@ -44,7 +44,7 @@ namespace Microsoft.Extensions.DependencyInjection
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
 
-            builder.Services.AddSingleton<IDiagnosticInterceptor, HttpHandlerInterceptor>();
+            builder.Services.AddSingleton<IDiagnosticInterceptor, HttpOutInterceptor>();
 
             return builder;
         }
