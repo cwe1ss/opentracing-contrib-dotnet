@@ -3,11 +3,11 @@ using System.Net.Http;
 using Microsoft.Extensions.DiagnosticAdapter;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using OpenTracing.Contrib.AspNetCore.Configuration;
+using OpenTracing.Contrib.Core.Configuration;
 using OpenTracing.Propagation;
 using OpenTracing.Tag;
 
-namespace OpenTracing.Contrib.AspNetCore.Interceptors.HttpOut
+namespace OpenTracing.Contrib.Core.Interceptors.HttpOut
 {
     public class HttpOutInterceptor : DiagnosticInterceptor
     {
@@ -18,8 +18,6 @@ namespace OpenTracing.Contrib.AspNetCore.Interceptors.HttpOut
         public const string EventException = "System.Net.Http.Exception";
 
         public const string Component = "HttpHandler";
-
-        public const string PropertySpan = "ot-span";
 
         private readonly HttpOutOptions _options;
 
@@ -51,32 +49,27 @@ namespace OpenTracing.Contrib.AspNetCore.Interceptors.HttpOut
 
                 string operationName = _options.OperationNameResolver(request);
 
-                ISpan span = Tracer.BuildSpan(operationName)
+                IScope scope = Tracer.BuildSpan(operationName)
                     .WithTag(Tags.SpanKind.Key, Tags.SpanKindClient)
                     .WithTag(Tags.Component.Key, Component)
                     .WithTag(Tags.HttpMethod.Key, request.Method.ToString())
                     .WithTag(Tags.HttpUrl.Key, request.RequestUri.ToString())
                     .WithTag(Tags.PeerHostname.Key, request.RequestUri.Host)
                     .WithTag(Tags.PeerPort.Key, request.RequestUri.Port)
-                    .Start();
+                    .StartActive(finishSpanOnDispose: true);
 
-                _options.OnRequest?.Invoke(span, request);
+                _options.OnRequest?.Invoke(scope.Span, request);
 
-                Tracer.Inject(span.Context, BuiltinFormats.HttpHeaders, new HttpHeadersCarrier(request.Headers));
-
-                request.Properties[PropertySpan] = span;
+                Tracer.Inject(scope.Span.Context, BuiltinFormats.HttpHeaders, new HttpHeadersCarrier(request.Headers));
             });
         }
 
         [DiagnosticName(EventException)]
-        public void OnException(HttpRequestMessage request, Exception ex)
+        public void OnException(HttpRequestMessage request, Exception exception)
         {
             Execute(() =>
             {
-                if (TryGetSpanFromRequestProperties(request, out ISpan span))
-                {
-                    span.SetException(ex);
-                }
+                Tracer.ActiveSpan?.SetException(exception);
             });
         }
 
@@ -85,12 +78,15 @@ namespace OpenTracing.Contrib.AspNetCore.Interceptors.HttpOut
         {
             Execute(() =>
             {
-                if (TryGetSpanFromRequestProperties(response.RequestMessage, out ISpan span))
+                IScope scope = Tracer.ScopeManager.Active;
+
+                if (response != null)
                 {
-                    Tags.HttpStatus.Set(span, (int)response.StatusCode);
-                    span.Finish();
+                    scope?.Span?.SetTag(Tags.HttpStatus.Key, (int)response.StatusCode);
                 }
-            });
+
+                scope?.Dispose();
+             });
         }
 
         private bool ShouldIgnore(HttpRequestMessage request)
@@ -102,13 +98,6 @@ namespace OpenTracing.Contrib.AspNetCore.Interceptors.HttpOut
             }
 
             return false;
-        }
-
-        private bool TryGetSpanFromRequestProperties(HttpRequestMessage request, out ISpan span)
-        {
-            request.Properties.TryGetValue(PropertySpan, out object objSpan);
-            span = objSpan as ISpan;
-            return span != null;
         }
     }
 }

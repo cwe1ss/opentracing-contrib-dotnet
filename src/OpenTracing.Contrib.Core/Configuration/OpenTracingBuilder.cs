@@ -1,13 +1,13 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace OpenTracing.Contrib.AspNetCore.Configuration
+namespace OpenTracing.Contrib.Core.Configuration
 {
-    public class InstrumentationBuilder : IInstrumentationBuilder
+    public class OpenTracingBuilder : IOpenTracingBuilder
     {
         public IServiceCollection Services { get; }
 
-        public InstrumentationBuilder(IServiceCollection services)
+        public OpenTracingBuilder(IServiceCollection services)
         {
             Services = services ?? throw new ArgumentNullException(nameof(services));
         }

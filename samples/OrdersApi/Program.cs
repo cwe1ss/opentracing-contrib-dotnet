@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Shared;
 
 namespace Samples.OrdersApi
@@ -16,7 +17,14 @@ namespace Samples.OrdersApi
             return WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
                 .UseUrls(Constants.OrdersUrl)
-                .UseOpenTracing() // Enables OpenTracing instrumentation for ASP.NET Core, HttpClient, EF Core
+
+                // Enables OpenTracing instrumentation for ASP.NET Core, HttpClient, EF Core
+                .UseOpenTracing()
+
+                // Register and start Zipkin
+                .ConfigureServices(services => services.AddSingleton<ZipkinManager>())
+                .Configure(app => app.ApplicationServices.GetRequiredService<ZipkinManager>().Start())
+
                 .Build();
         }
     }

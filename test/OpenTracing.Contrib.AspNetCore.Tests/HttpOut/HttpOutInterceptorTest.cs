@@ -3,11 +3,12 @@ using System.Net.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using OpenTracing.Contrib.AspNetCore.Configuration;
-using OpenTracing.Contrib.AspNetCore.Interceptors.HttpOut;
+using OpenTracing.Contrib.Core.Configuration;
+using OpenTracing.Contrib.Core.Interceptors.HttpOut;
 using OpenTracing.Mock;
 using OpenTracing.Propagation;
 using OpenTracing.Tag;
+using OpenTracing.Util;
 using Xunit;
 
 namespace OpenTracing.Contrib.AspNetCore.Tests.HttpOut
@@ -28,12 +29,13 @@ namespace OpenTracing.Contrib.AspNetCore.Tests.HttpOut
         [Fact]
         public void OnRequest_creates_span_if_no_parent()
         {
-            var interceptor = GetInterceptor();
+            var tracer = new MockTracer();
+            var interceptor = GetInterceptor(tracer);
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
 
             interceptor.OnRequest(request);
 
-            Assert.NotNull(request.Properties[HttpOutInterceptor.PropertySpan]);
+            Assert.NotNull(tracer.ActiveSpan);
         }
 
         [Fact]
@@ -51,7 +53,7 @@ namespace OpenTracing.Contrib.AspNetCore.Tests.HttpOut
                 // Call interceptor
                 interceptor.OnRequest(request);
 
-                var newSpan = (MockSpan)request.Properties[HttpOutInterceptor.PropertySpan];
+                var newSpan = (MockSpan)tracer.ActiveSpan;
 
                 Assert.NotSame(parentSpan, newSpan);
                 Assert.Single(newSpan.References);
@@ -63,13 +65,14 @@ namespace OpenTracing.Contrib.AspNetCore.Tests.HttpOut
         [Fact]
         public void OnRequest_span_has_tags()
         {
-            var interceptor = GetInterceptor();
+            var tracer = new MockTracer();
+            var interceptor = GetInterceptor(tracer);
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
 
             // Call interceptor
             interceptor.OnRequest(request);
 
-            var newSpan = (MockSpan)request.Properties[HttpOutInterceptor.PropertySpan];
+            var newSpan = (MockSpan)tracer.ActiveSpan;
 
             Assert.Equal("HttpHandler", newSpan.Tags[Tags.Component.Key]);
             Assert.Equal(Tags.SpanKindClient, newSpan.Tags[Tags.SpanKind.Key]);
@@ -81,7 +84,7 @@ namespace OpenTracing.Contrib.AspNetCore.Tests.HttpOut
         public void OnRequest_calls_Inject()
         {
             var propagator = Substitute.For<IPropagator>();
-            var tracer = new MockTracer(propagator);
+            var tracer = new MockTracer(new AsyncLocalScopeManager(), propagator);
             var interceptor = GetInterceptor(tracer);
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
 
@@ -174,12 +177,13 @@ namespace OpenTracing.Contrib.AspNetCore.Tests.HttpOut
             options.ShouldIgnore.Clear();
             options.ShouldIgnore.Add(_ => true);
 
-            var interceptor = GetInterceptor(options: options);
+            var tracer = new MockTracer();
+            var interceptor = GetInterceptor(tracer, options);
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
 
             interceptor.OnRequest(request);
 
-            Assert.False(request.Properties.ContainsKey(HttpOutInterceptor.PropertySpan));
+            Assert.Null(tracer.ActiveSpan);
         }
 
         [Fact]
@@ -188,12 +192,13 @@ namespace OpenTracing.Contrib.AspNetCore.Tests.HttpOut
             var options = new HttpOutOptions();
             options.OperationNameResolver = _ => "foo";
 
-            var interceptor = GetInterceptor(options: options);
+            var tracer = new MockTracer();
+            var interceptor = GetInterceptor(tracer, options);
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
 
             interceptor.OnRequest(request);
 
-            var newSpan = (MockSpan)request.Properties[HttpOutInterceptor.PropertySpan];
+            var newSpan = (MockSpan)tracer.ActiveSpan;
 
             Assert.Equal("foo", newSpan.OperationName);
         }

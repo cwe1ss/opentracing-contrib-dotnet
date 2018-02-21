@@ -8,6 +8,7 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>git://github.com/cwe1ss/opentracing-contrib-dotnet</RepositoryUrl>
 
+    <LangVersion>latest</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

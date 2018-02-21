@@ -1,8 +1,6 @@
+﻿using System;
 using System.Net.Http;
 using System.Reflection;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenTracing.Tracer.Zipkin;
 using OpenTracing.Util;
@@ -13,14 +11,18 @@ using zipkin4net.Transport.Http;
 
 namespace Shared
 {
-    public static class ZipkinHelper
+    public class ZipkinManager : zipkin4net.ILogger, IDisposable
     {
-        public static void ConfigureZipkin(IApplicationBuilder app)
+        private readonly Microsoft.Extensions.Logging.ILogger _logger;
+
+        public ZipkinManager(ILogger<ZipkinManager> logger)
+        {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        public void Start()
         {
             // Zipkin Configuration
-
-            var loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>();
-            var zipkinLogger = new ZipkinLogger(loggerFactory, "zipkin4net");
 
             var zipkinHttpClient = new HttpClient(new SetOtIgnoreHandler
             {
@@ -31,13 +33,9 @@ namespace Shared
             var zipkinTracer = new ZipkinTracer(zipkinSender, new JSONSpanSerializer());
 
             TraceManager.SamplingRate = 1.0f;
-            TraceManager.RegisterTracer(zipkinTracer);
-            TraceManager.Start(zipkinLogger);
 
-            app.ApplicationServices.GetRequiredService<IApplicationLifetime>().ApplicationStopped.Register(() =>
-            {
-                TraceManager.Stop();
-            });
+            TraceManager.RegisterTracer(zipkinTracer);
+            TraceManager.Start(this);
 
             // OpenTracing -> Zipkin Configuration
 
@@ -49,6 +47,26 @@ namespace Shared
                new ZipkinHttpTraceExtractor());
 
             GlobalTracer.Register(otTracer);
+        }
+
+        public void LogInformation(string message)
+        {
+            _logger.LogInformation(message);
+        }
+
+        public void LogWarning(string message)
+        {
+            _logger.LogWarning(message);
+        }
+
+        public void LogError(string message)
+        {
+            _logger.LogError(message);
+        }
+
+        public void Dispose()
+        {
+            TraceManager.Stop();
         }
     }
 }

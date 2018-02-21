@@ -8,7 +8,8 @@ namespace Microsoft.AspNetCore.Hosting
         {
             builder.ConfigureServices(services =>
             {
-                services.AddOpenTracing();
+                services.AddOpenTracing()
+                    .AddAspNetCore();
             });
 
             return builder;

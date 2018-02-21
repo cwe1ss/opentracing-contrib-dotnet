@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 
-namespace OpenTracing.Contrib.AspNetCore.Configuration
+namespace OpenTracing.Contrib.Core.Configuration
 {
     /// <summary>
     /// Configuration for the instrumentation of <see cref="HttpClient"/> calls.

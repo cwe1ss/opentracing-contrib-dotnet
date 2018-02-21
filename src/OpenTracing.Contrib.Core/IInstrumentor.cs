@@ -1,6 +1,6 @@
 using System;
 
-namespace OpenTracing.Contrib.AspNetCore
+namespace OpenTracing.Contrib.Core
 {
     public interface IInstrumentor : IDisposable
     {

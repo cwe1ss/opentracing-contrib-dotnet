@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using OpenTracing.Tag;
 
-namespace OpenTracing.Contrib.AspNetCore
+namespace OpenTracing.Contrib.Core
 {
     public static class SpanExtensions
     {

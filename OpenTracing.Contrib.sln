@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2027
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{420F640A-E23F-457C-BEC7-1DEAD1C592F1}"
 EndProject
@@ -23,6 +23,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing", "..\..\opentracing\opentracing-csharp\src\OpenTracing\OpenTracing.csproj", "{89E1A35B-C1C7-4C0D-ACEE-C08EF89F325E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Contrib.AspNetCore.Tests", "test\OpenTracing.Contrib.AspNetCore.Tests\OpenTracing.Contrib.AspNetCore.Tests.csproj", "{29D93B24-CEF9-48BA-9DE5-961E1C0D52E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTracing.Contrib.Core", "src\OpenTracing.Contrib.Core\OpenTracing.Contrib.Core.csproj", "{10729E17-3C79-477B-BBEB-B727D7B5B60B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrafficGenerator", "samples\TrafficGenerator\TrafficGenerator.csproj", "{F82DCB26-7497-43A5-9F46-4B58DAB28C25}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,6 +66,14 @@ Global
 		{29D93B24-CEF9-48BA-9DE5-961E1C0D52E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{29D93B24-CEF9-48BA-9DE5-961E1C0D52E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{29D93B24-CEF9-48BA-9DE5-961E1C0D52E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10729E17-3C79-477B-BBEB-B727D7B5B60B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10729E17-3C79-477B-BBEB-B727D7B5B60B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10729E17-3C79-477B-BBEB-B727D7B5B60B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10729E17-3C79-477B-BBEB-B727D7B5B60B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F82DCB26-7497-43A5-9F46-4B58DAB28C25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F82DCB26-7497-43A5-9F46-4B58DAB28C25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F82DCB26-7497-43A5-9F46-4B58DAB28C25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F82DCB26-7497-43A5-9F46-4B58DAB28C25}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -74,6 +86,8 @@ Global
 		{2484DE0B-27A7-4B85-8DC6-63D9B546DED3} = {420F640A-E23F-457C-BEC7-1DEAD1C592F1}
 		{A80A5CC0-5637-4FDC-9741-087A7DA4824D} = {420F640A-E23F-457C-BEC7-1DEAD1C592F1}
 		{29D93B24-CEF9-48BA-9DE5-961E1C0D52E3} = {F9AD8B6F-1F59-4678-B9CF-9CD87172A111}
+		{10729E17-3C79-477B-BBEB-B727D7B5B60B} = {420F640A-E23F-457C-BEC7-1DEAD1C592F1}
+		{F82DCB26-7497-43A5-9F46-4B58DAB28C25} = {36333C22-54F7-403C-ABC4-BECE4EE3F52D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {832F86C2-4B74-4259-8073-04EE0C37FBCD}

@@ -8,17 +8,10 @@
     <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DiagnosticAdapter" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="2.0.0" />
-    <PackageReference Include="System.Reactive" Version="3.1.1" />
-
-    <PackageReference Include="OpenTracing" Version="0.10.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\opentracing\opentracing-csharp\src\OpenTracing\OpenTracing.csproj" />
+    <ProjectReference Include="..\OpenTracing.Contrib.Core\OpenTracing.Contrib.Core.csproj" />
   </ItemGroup>
 
 </Project>

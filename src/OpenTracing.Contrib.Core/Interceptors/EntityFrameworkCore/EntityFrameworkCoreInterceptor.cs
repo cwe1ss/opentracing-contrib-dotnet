@@ -3,7 +3,7 @@ using Microsoft.Extensions.DiagnosticAdapter;
 using Microsoft.Extensions.Logging;
 using OpenTracing.Tag;
 
-namespace OpenTracing.Contrib.AspNetCore.Interceptors.EntityFrameworkCore
+namespace OpenTracing.Contrib.Core.Interceptors.EntityFrameworkCore
 {
     public class EntityFrameworkCoreInterceptor : DiagnosticInterceptor
     {

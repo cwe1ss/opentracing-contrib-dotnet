@@ -4,7 +4,6 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Samples.CustomersApi.DataStore;
-using Shared;
 
 namespace Samples.CustomersApi
 {
@@ -38,8 +37,6 @@ namespace Samples.CustomersApi
 
         public void Configure(IApplicationBuilder app)
         {
-            ZipkinHelper.ConfigureZipkin(app);
-
             // Load some dummy data into the InMemory db.
             BootstrapDataStore(app.ApplicationServices);
 

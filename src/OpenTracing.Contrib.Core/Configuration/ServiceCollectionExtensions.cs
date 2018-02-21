@@ -1,30 +1,27 @@
 using System;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using OpenTracing;
-using OpenTracing.Contrib.AspNetCore;
-using OpenTracing.Contrib.AspNetCore.Configuration;
+using OpenTracing.Contrib.Core;
+using OpenTracing.Contrib.Core.Configuration;
 using OpenTracing.Util;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static IInstrumentationBuilder AddOpenTracing(this IServiceCollection services)
+        public static IOpenTracingBuilder AddOpenTracing(this IServiceCollection services)
         {
             if (services == null)
                 throw new ArgumentNullException(nameof(services));
 
-            var builder = services
-                .AddOpenTracingCore()
-                .AddAspNetCore()
+            var builder = services.AddOpenTracingCore()
                 .AddEntityFrameworkCore()
                 .AddHttpClient();
 
             return builder;
         }
 
-        public static IInstrumentationBuilder AddOpenTracingCore(this IServiceCollection services)
+        public static IOpenTracingBuilder AddOpenTracingCore(this IServiceCollection services)
         {
             if (services == null)
                 throw new ArgumentNullException(nameof(services));
@@ -33,9 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.TryAddSingleton<IInstrumentor, Instrumentor>();
 
-            services.AddTransient<IStartupFilter, StartInstrumentationStartupFilter>();
-
-            var builder = new InstrumentationBuilder(services);
+            var builder = new OpenTracingBuilder(services);
 
             return builder;
         }

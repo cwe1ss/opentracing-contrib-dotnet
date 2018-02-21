@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace OpenTracing.Contrib.AspNetCore
+namespace OpenTracing.Contrib.Core
 {
     public class Instrumentor : IInstrumentor
     {

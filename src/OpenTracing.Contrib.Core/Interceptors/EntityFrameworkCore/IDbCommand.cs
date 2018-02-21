@@ -1,4 +1,4 @@
-namespace OpenTracing.Contrib.AspNetCore.Interceptors.EntityFrameworkCore
+namespace OpenTracing.Contrib.Core.Interceptors.EntityFrameworkCore
 {
     public interface IDbCommand
     {

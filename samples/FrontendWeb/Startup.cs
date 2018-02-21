@@ -1,7 +1,6 @@
 using System.Net.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Shared;
 
 namespace Samples.FrontendWeb
 {
@@ -16,8 +15,6 @@ namespace Samples.FrontendWeb
 
         public void Configure(IApplicationBuilder app)
         {
-            ZipkinHelper.ConfigureZipkin(app);
-
             app.UseDeveloperExceptionPage();
 
             app.UseMvcWithDefaultRoute();
