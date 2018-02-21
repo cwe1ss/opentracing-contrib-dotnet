@@ -14,13 +14,11 @@ namespace OpenTracing.Contrib.AspNetCore.Interceptors.Mvc
         private const string EventBeforeActionResult = "Microsoft.AspNetCore.Mvc.BeforeActionResult";
         private const string EventAfterActionResult = "Microsoft.AspNetCore.Mvc.AfterActionResult";
 
-        private const string Component = "AspNetCoreMvc";
-
-        private const string ActionOperationName = "mvc_action";
+        private const string ActionComponent = "AspNetCore.MvcAction";
         private const string ActionTagActionName = "action";
         private const string ActionTagControllerName = "controller";
 
-        private const string ResultOperationName = "mvc_result";
+        private const string ResultComponent = "AspNetCore.MvcResult";
         private const string ResultTagType = "result.type";
 
         private readonly ProxyAdapter _proxyAdapter;
@@ -53,8 +51,10 @@ namespace OpenTracing.Contrib.AspNetCore.Interceptors.Mvc
             {
                 var typedActionDescriptor = ConvertActionDescriptor(actionDescriptor);
 
-                Tracer.BuildSpan(ActionOperationName)
-                    .WithTag(Tags.Component.Key, Component)
+                string operationName = $"action_{typedActionDescriptor.ControllerName}/{typedActionDescriptor.ActionName}";
+
+                Tracer.BuildSpan(operationName)
+                    .WithTag(Tags.Component.Key, ActionComponent)
                     .WithTag(ActionTagControllerName, typedActionDescriptor.ControllerName)
                     .WithTag(ActionTagActionName, typedActionDescriptor.ActionName)
                     .StartActive(finishSpanOnDispose: true);
@@ -76,9 +76,10 @@ namespace OpenTracing.Contrib.AspNetCore.Interceptors.Mvc
             Execute(() =>
             {
                 string resultType = result.GetType().Name;
+                string operationName = $"result_{resultType}";
 
-                Tracer.BuildSpan(ResultOperationName)
-                    .WithTag(Tags.Component.Key, Component)
+                Tracer.BuildSpan(operationName)
+                    .WithTag(Tags.Component.Key, ResultComponent)
                     .WithTag(ResultTagType, resultType)
                     .StartActive(finishSpanOnDispose: true);
             });

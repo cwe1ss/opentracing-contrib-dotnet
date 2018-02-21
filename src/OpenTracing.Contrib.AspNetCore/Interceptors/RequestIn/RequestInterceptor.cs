@@ -20,7 +20,9 @@ namespace OpenTracing.Contrib.AspNetCore.Interceptors.RequestIn
         private const string EventDiagnosticsHandledException = "Microsoft.AspNetCore.Diagnostics.HandledException";
         private const string EventDiagnosticsUnhandledException = "Microsoft.AspNetCore.Diagnostics.UnhandledException";
 
-        private const string Component = "AspNetCore";
+        private const string Component = "AspNetCore.Request";
+
+        private const string ItemsKey = "ot-RequestScope";
 
         public RequestInterceptor(ILoggerFactory loggerFactory, ITracer tracer)
             : base(loggerFactory, tracer)
@@ -29,11 +31,16 @@ namespace OpenTracing.Contrib.AspNetCore.Interceptors.RequestIn
 
         protected override bool IsEnabled(string listenerName)
         {
-            if (listenerName == EventBeginRequest) return true;
-            if (listenerName == EventEndRequest) return true;
-            if (listenerName == EventHostingUnhandledException) return true;
-            if (listenerName == EventDiagnosticsHandledException) return true;
-            if (listenerName == EventDiagnosticsUnhandledException) return true;
+            if (listenerName == EventBeginRequest)
+                return true;
+            if (listenerName == EventEndRequest)
+                return true;
+            if (listenerName == EventHostingUnhandledException)
+                return true;
+            if (listenerName == EventDiagnosticsHandledException)
+                return true;
+            if (listenerName == EventDiagnosticsUnhandledException)
+                return true;
 
             return false;
         }
@@ -57,43 +64,54 @@ namespace OpenTracing.Contrib.AspNetCore.Interceptors.RequestIn
                     .WithTag(Tags.HttpUrl.Key, request.GetDisplayUrl())
                     .StartActive(finishSpanOnDispose: true);
 
-                // Make sure the scope is disposed at the end of the request.
-                httpContext.Response.RegisterForDispose(scope);
+                // We don't rely on the ScopeManager as someone could have messed up with the disposal-chain in ScopeManager.
+                httpContext.Items[ItemsKey] = scope;
             });
         }
 
+        /// <summary>
+        /// This event is called for requests that did NOT end in an exception.
+        /// </summary>
         [DiagnosticName(EventEndRequest)]
         public void OnEndRequest(HttpContext httpContext)
         {
-            Execute(() =>
+            ExecuteOnScope(httpContext, scope =>
             {
-                var span = Tracer.ActiveSpan;
-                if (span == null)
-                {
-                    Logger.LogError("ActiveSpan not found");
-                    return;
-                }
-
-                Tags.HttpStatus.Set(span, httpContext.Response.StatusCode);
+                Tags.HttpStatus.Set(scope.Span, httpContext.Response.StatusCode);
+                scope.Dispose();
             });
         }
 
+        /// <summary>
+        /// This event is called for requests that DID end in an exception.
+        /// </summary>
         [DiagnosticName(EventHostingUnhandledException)]
         public void OnHostingUnhandledException(HttpContext httpContext, Exception exception)
         {
-            HandleException(httpContext, exception);
+            ExecuteOnScope(httpContext, scope =>
+            {
+                scope.Span.SetException(exception);
+                Tags.HttpStatus.Set(scope.Span, httpContext.Response.StatusCode);
+                scope.Dispose();
+            });
         }
 
         [DiagnosticName(EventDiagnosticsHandledException)]
         public void OnDiagnosticsHandledException(HttpContext httpContext, Exception exception)
         {
-            HandleException(httpContext, exception);
+            ExecuteOnScope(httpContext, scope =>
+            {
+                scope.Span.SetException(exception);
+            });
         }
 
         [DiagnosticName(EventDiagnosticsUnhandledException)]
         public void OnDiagnosticsUnhandledException(HttpContext httpContext, Exception exception)
         {
-            HandleException(httpContext, exception);
+            ExecuteOnScope(httpContext, scope =>
+            {
+                scope.Span.SetException(exception);
+            });
         }
 
         private ISpanContext TryExtractSpanContext(HttpRequest request)
@@ -116,24 +134,19 @@ namespace OpenTracing.Contrib.AspNetCore.Interceptors.RequestIn
             return request.Path;
         }
 
-        private void HandleException(HttpContext httpContext, Exception exception)
+        private void ExecuteOnScope(HttpContext httpContext, Action<IScope> action)
         {
-            try
+            Execute(() =>
             {
-                var span = Tracer.ActiveSpan;
-                if (span == null)
+                if (httpContext.Items.TryGetValue(ItemsKey, out object objScope) && objScope is IScope scope)
                 {
-                    Logger.LogError("ActiveSpan not found");
-                    return;
+                    action(scope);
                 }
-
-                Tags.HttpStatus.Set(span, httpContext.Response.StatusCode);
-                span.SetException(exception);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(0, ex, "HandleException failed");
-            }
+                else
+                {
+                    Logger.LogError("Scope not found");
+                }
+            });
         }
     }
 }

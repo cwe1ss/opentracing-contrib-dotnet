@@ -67,11 +67,16 @@ namespace OpenTracing.Contrib.AspNetCore
                 var scope = Tracer.ScopeManager.Active;
                 if (scope == null)
                 {
-                    Logger.LogError("ActiveSpan not found");
+                    Logger.LogError("Scope not found");
                     return;
                 }
 
                 scope.Dispose();
+
+                if (Tracer.ScopeManager.Active == scope)
+                {
+                    Logger.LogError("Disposing scope failed");
+                }
             });
         }
     }
