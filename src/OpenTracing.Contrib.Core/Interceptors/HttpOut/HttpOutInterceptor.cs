@@ -17,7 +17,7 @@ namespace OpenTracing.Contrib.Core.Interceptors.HttpOut
         public const string EventResponse = "System.Net.Http.Response";
         public const string EventException = "System.Net.Http.Exception";
 
-        public const string Component = "HttpHandler";
+        public const string Component = "HttpClient";
 
         private readonly HttpOutOptions _options;
 

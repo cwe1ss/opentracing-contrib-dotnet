@@ -1,206 +1,216 @@
 using System;
+using System.Net;
 using System.Net.Http;
-using Microsoft.Extensions.Logging;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using OpenTracing.Contrib.Core.Configuration;
 using OpenTracing.Contrib.Core.Interceptors.HttpOut;
 using OpenTracing.Mock;
-using OpenTracing.Propagation;
 using OpenTracing.Tag;
-using OpenTracing.Util;
 using Xunit;
 
 namespace OpenTracing.Contrib.AspNetCore.Tests.HttpOut
 {
-    public class HttpOutInterceptorTest
+    public class HttpOutInterceptorTest : IDisposable
     {
-        private HttpOutInterceptor GetInterceptor(
-            ITracer tracer = null,
-            HttpOutOptions options = null)
+        private readonly MockTracer _tracer;
+        private readonly HttpOutOptions _options;
+        private readonly HttpOutInterceptor _interceptor;
+        private readonly MockHttpMessageHandler _httpHandler;
+        private readonly HttpClient _httpClient;
+
+        public class MockHttpMessageHandler : HttpMessageHandler
         {
-            var loggerFactory = new LoggerFactory();
-            tracer = tracer ?? new MockTracer();
-            options = options ?? new HttpOutOptions();
-
-            return new HttpOutInterceptor(loggerFactory, tracer, Options.Create(options));
-        }
-
-        [Fact]
-        public void OnRequest_creates_span_if_no_parent()
-        {
-            var tracer = new MockTracer();
-            var interceptor = GetInterceptor(tracer);
-            var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
-
-            interceptor.OnRequest(request);
-
-            Assert.NotNull(tracer.ActiveSpan);
-        }
-
-        [Fact]
-        public void OnRequest_span_is_child_of_parent()
-        {
-            var tracer = new MockTracer();
-            var interceptor = GetInterceptor(tracer);
-            var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
-
-            // Create parent span
-            using (var scope = tracer.BuildSpan("parent").StartActive(finishSpanOnDispose: true))
+            public virtual HttpResponseMessage Send(HttpRequestMessage request)
             {
-                var parentSpan = scope.Span;
+                throw new NotSupportedException("Set up result with NSubstitute!");
+            }
 
-                // Call interceptor
-                interceptor.OnRequest(request);
-
-                var newSpan = (MockSpan)tracer.ActiveSpan;
-
-                Assert.NotSame(parentSpan, newSpan);
-                Assert.Single(newSpan.References);
-                Assert.Equal(References.ChildOf, newSpan.References[0].ReferenceType);
-                Assert.Same(parentSpan.Context, newSpan.References[0].Context);
+            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            {
+                return Task.FromResult(Send(request));
             }
         }
 
-        [Fact]
-        public void OnRequest_span_has_tags()
+        public HttpOutInterceptorTest()
         {
-            var tracer = new MockTracer();
-            var interceptor = GetInterceptor(tracer);
-            var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
+            _tracer = new MockTracer();
+            _options = new HttpOutOptions();
+            _interceptor = new HttpOutInterceptor(new NullLoggerFactory(), _tracer, Options.Create(_options));
 
-            // Call interceptor
-            interceptor.OnRequest(request);
-
-            var newSpan = (MockSpan)tracer.ActiveSpan;
-
-            Assert.Equal("HttpHandler", newSpan.Tags[Tags.Component.Key]);
-            Assert.Equal(Tags.SpanKindClient, newSpan.Tags[Tags.SpanKind.Key]);
-            Assert.Equal("http://www.example.com/api/values", newSpan.Tags[Tags.HttpUrl.Key]);
-            Assert.Equal("GET", newSpan.Tags[Tags.HttpMethod.Key]);
-        }
-
-        [Fact]
-        public void OnRequest_calls_Inject()
-        {
-            var propagator = Substitute.For<IPropagator>();
-            var tracer = new MockTracer(new AsyncLocalScopeManager(), propagator);
-            var interceptor = GetInterceptor(tracer);
-            var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
-
-            // Call interceptor
-            interceptor.OnRequest(request);
-
-            propagator.Received(1).Inject(Arg.Any<MockSpanContext>(), BuiltinFormats.HttpHeaders, Arg.Any<HttpHeadersCarrier>());
-        }
-
-        [Fact]
-        public void OnRequest_calls_Options_ShouldIgnore()
-        {
-            bool shouldIgnoreCalled = false;
-
-            var options = new HttpOutOptions();
-            options.ShouldIgnore.Clear();
-            options.ShouldIgnore.Add(_ => shouldIgnoreCalled = true);
-
-            var interceptor = GetInterceptor(options: options);
-            var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
-
-            interceptor.OnRequest(request);
-
-            Assert.True(shouldIgnoreCalled);
-        }
-
-        [Fact]
-        public void OnRequest_calls_Options_ShouldIgnore_list_correctly()
-        {
-            bool shouldIgnore1Called = false;
-            bool shouldIgnore2Called = false;
-            bool shouldIgnore3Called = false;
-
-            var options = new HttpOutOptions();
-            options.ShouldIgnore.Clear();
-            options.ShouldIgnore.Add(_ => { shouldIgnore1Called = true; return false; });
-            options.ShouldIgnore.Add(_ => { shouldIgnore2Called = true; return true; });
-            options.ShouldIgnore.Add(_ => { shouldIgnore3Called = true; return false; });
-
-            var interceptor = GetInterceptor(options: options);
-            var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
-
-            interceptor.OnRequest(request);
-
-            Assert.True(shouldIgnore1Called);
-            Assert.True(shouldIgnore2Called);
-            Assert.False(shouldIgnore3Called);
-        }
-
-        [Fact]
-        public void OnRequest_calls_Options_OperationNameResolver()
-        {
-            bool operationNameResolverCalled = false;
-
-            var options = new HttpOutOptions();
-            options.OperationNameResolver = _ =>
+            // Inner handler for mocking the result
+            _httpHandler = Substitute.ForPartsOf<MockHttpMessageHandler>();
+            _httpHandler.Send(Arg.Any<HttpRequestMessage>()).Returns(callInfo => new HttpResponseMessage(HttpStatusCode.OK)
             {
-                operationNameResolverCalled = true;
-                return "foo";
-            };
+                RequestMessage = callInfo.Arg<HttpRequestMessage>(),
+                Content = new StringContent("Response")
+            });
 
-            var interceptor = GetInterceptor(options: options);
-            var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
+            // Wrap with DiagnosticsHandler (which is internal :( )
+            Type type = typeof(HttpClientHandler).Assembly.GetType("System.Net.Http.DiagnosticsHandler");
+            ConstructorInfo constructor = type.GetConstructors(BindingFlags.Instance | BindingFlags.Public)[0];
+            HttpMessageHandler diagnosticsHandler = (HttpMessageHandler)constructor.Invoke(new object[] { _httpHandler });
 
-            interceptor.OnRequest(request);
+            _httpClient = new HttpClient(diagnosticsHandler);
 
-            Assert.True(operationNameResolverCalled);
+            _interceptor.Start();
+        }
+
+        public void Dispose()
+        {
+            // Stops the interceptor
+            _interceptor.Dispose();
         }
 
         [Fact]
-        public void OnRequest_calls_Options_OnRequest()
+        public async Task Creates_span()
+        {
+            await _httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values")));
+
+            Assert.Single(_tracer.FinishedSpans());
+        }
+
+        [Fact]
+        public async Task Span_is_child_of_parent()
+        {
+            // Create parent span
+            using (var scope = _tracer.BuildSpan("parent").StartActive(finishSpanOnDispose: true))
+            {
+                await _httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values")));
+            }
+
+            var finishedSpans = _tracer.FinishedSpans();
+            Assert.Equal(2, finishedSpans.Count);
+
+            // Inner span is finished first
+            var childSpan = finishedSpans[0];
+            var parentSpan = finishedSpans[1];
+
+            Assert.NotSame(parentSpan, childSpan);
+            Assert.Single(childSpan.References);
+            Assert.Equal(References.ChildOf, childSpan.References[0].ReferenceType);
+            Assert.Same(parentSpan.Context, childSpan.References[0].Context);
+        }
+
+        [Fact]
+        public async Task Span_has_correct_properties()
+        {
+            await _httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values")));
+
+            var finishedSpans = _tracer.FinishedSpans();
+            Assert.Single(finishedSpans);
+
+            var span = finishedSpans[0];
+            Assert.Empty(span.GeneratedErrors);
+            Assert.Empty(span.LogEntries);
+            Assert.Equal("GET_api/values", span.OperationName);
+            Assert.Equal(0, span.ParentId);
+            Assert.Empty(span.References);
+
+            Assert.Equal(7, span.Tags.Count);
+            Assert.Equal(Tags.SpanKindClient, span.Tags[Tags.SpanKind.Key]);
+            Assert.Equal("HttpClient", span.Tags[Tags.Component.Key]);
+            Assert.Equal("GET", span.Tags[Tags.HttpMethod.Key]);
+            Assert.Equal("http://www.example.com/api/values", span.Tags[Tags.HttpUrl.Key]);
+            Assert.Equal("www.example.com", span.Tags[Tags.PeerHostname.Key]);
+            Assert.Equal(80, span.Tags[Tags.PeerPort.Key]);
+            Assert.Equal(200, span.Tags[Tags.HttpStatus.Key]);
+        }
+
+        [Fact]
+        public async Task Injects_trace_headers()
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
+
+            await _httpClient.SendAsync(request);
+
+            Assert.True(request.Headers.Contains("traceid"));
+        }
+
+        [Fact]
+        public async Task Ignores_requests_with_Ignore_property()
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
+            request.Properties[HttpOutOptions.PropertyIgnore] = true;
+
+            await _httpClient.SendAsync(request);
+
+            Assert.Empty(_tracer.FinishedSpans());
+        }
+
+        [Fact]
+        public async Task Ignores_requests_with_custom_rule()
+        {
+            _options.ShouldIgnore.Add(req => req.Properties.ContainsKey("foo"));
+
+            var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
+            request.Properties["foo"] = 1;
+
+            await _httpClient.SendAsync(request);
+
+            Assert.Empty(_tracer.FinishedSpans());
+        }
+
+        [Fact]
+        public async Task Calls_Options_OperationNameResolver()
+        {
+            _options.OperationNameResolver = _ => "foo";
+
+            await _httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values")));
+
+            var finishedSpans = _tracer.FinishedSpans();
+            Assert.Single(finishedSpans);
+
+            var span = finishedSpans[0];
+            Assert.Equal("foo", span.OperationName);
+        }
+
+        [Fact]
+        public async Task Calls_Options_OnRequest()
         {
             bool onRequestCalled = false;
 
-            var options = new HttpOutOptions();
-            options.OnRequest = (_, __) => onRequestCalled = true;
+            _options.OnRequest = (_, __) => onRequestCalled = true;
 
-            var interceptor = GetInterceptor(options: options);
-            var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
-
-            interceptor.OnRequest(request);
+            await _httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values")));
 
             Assert.True(onRequestCalled);
         }
 
         [Fact]
-        public void OnRequest_does_not_create_span_if_Options_ShouldIgnore_returns_true()
+        public async Task Creates_error_span_if_request_times_out()
         {
-            var options = new HttpOutOptions();
-            options.ShouldIgnore.Clear();
-            options.ShouldIgnore.Add(_ => true);
-
-            var tracer = new MockTracer();
-            var interceptor = GetInterceptor(tracer, options);
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
 
-            interceptor.OnRequest(request);
+            _httpHandler.Send(request).Returns(_ => throw new TaskCanceledException());
 
-            Assert.Null(tracer.ActiveSpan);
+            await Assert.ThrowsAsync<TaskCanceledException>(() => _httpClient.SendAsync(request));
+
+            var finishedSpans = _tracer.FinishedSpans();
+            Assert.Single(finishedSpans);
+
+            var span = finishedSpans[0];
+            Assert.Equal("1", span.Tags[Tags.Error.Key]);
         }
 
         [Fact]
-        public void OnRequest_sets_OperationName_from_Options_OperationNameResolver()
+        public async Task Creates_error_span_if_request_fails()
         {
-            var options = new HttpOutOptions();
-            options.OperationNameResolver = _ => "foo";
-
-            var tracer = new MockTracer();
-            var interceptor = GetInterceptor(tracer, options);
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
 
-            interceptor.OnRequest(request);
+            _httpHandler.Send(request).Returns(_ => throw new InvalidOperationException());
 
-            var newSpan = (MockSpan)tracer.ActiveSpan;
+            await Assert.ThrowsAsync<InvalidOperationException>(() => _httpClient.SendAsync(request));
 
-            Assert.Equal("foo", newSpan.OperationName);
+            var finishedSpans = _tracer.FinishedSpans();
+            Assert.Single(finishedSpans);
+
+            var span = finishedSpans[0];
+            Assert.Equal("1", span.Tags[Tags.Error.Key]);
         }
     }
 }
