@@ -35,11 +35,11 @@ namespace OpenTracing.Contrib.AspNetCore.Tests.HttpOut
 
             protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
             {
-                HttpResponseMessage response = OnSend(request);
-                //return Task.FromResult(response);
-
+                // HACK: There MUST be an awaiter otherwise exceptions are not caught by the DiagnosticsHandler.
+                // https://github.com/dotnet/corefx/pull/27472
                 await Task.CompletedTask;
-                return response;
+
+                return OnSend(request);
             }
         }
 
