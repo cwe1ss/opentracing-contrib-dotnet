@@ -5,6 +5,9 @@ using OpenTracing.Contrib.Core;
 
 namespace OpenTracing.Contrib.AspNetCore
 {
+    /// <summary>
+    /// Automatically starts the instrumentation on application startup.
+    /// </summary>
     public class StartInstrumentationStartupFilter : IStartupFilter
     {
         private readonly IInstrumentor _instrumentor;
