@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using NSubstitute;
 using OpenTracing.Contrib.Core.Configuration;
 using OpenTracing.Contrib.Core.Interceptors.HttpOut;
 using OpenTracing.Mock;
@@ -25,14 +24,22 @@ namespace OpenTracing.Contrib.AspNetCore.Tests.HttpOut
 
         public class MockHttpMessageHandler : HttpMessageHandler
         {
-            public virtual HttpResponseMessage Send(HttpRequestMessage request)
+            public Func<HttpRequestMessage, HttpResponseMessage> OnSend = request =>
             {
-                throw new NotSupportedException("Set up result with NSubstitute!");
-            }
+                return new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    RequestMessage = request,
+                    Content = new StringContent("Response")
+                };
+            };
 
-            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
             {
-                return Task.FromResult(Send(request));
+                HttpResponseMessage response = OnSend(request);
+                //return Task.FromResult(response);
+
+                await Task.CompletedTask;
+                return response;
             }
         }
 
@@ -43,12 +50,7 @@ namespace OpenTracing.Contrib.AspNetCore.Tests.HttpOut
             _interceptor = new HttpOutInterceptor(new NullLoggerFactory(), _tracer, Options.Create(_options));
 
             // Inner handler for mocking the result
-            _httpHandler = Substitute.ForPartsOf<MockHttpMessageHandler>();
-            _httpHandler.Send(Arg.Any<HttpRequestMessage>()).Returns(callInfo => new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                RequestMessage = callInfo.Arg<HttpRequestMessage>(),
-                Content = new StringContent("Response")
-            });
+            _httpHandler = new MockHttpMessageHandler();
 
             // Wrap with DiagnosticsHandler (which is internal :( )
             Type type = typeof(HttpClientHandler).Assembly.GetType("System.Net.Http.DiagnosticsHandler");
@@ -186,7 +188,7 @@ namespace OpenTracing.Contrib.AspNetCore.Tests.HttpOut
         {
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
 
-            _httpHandler.Send(request).Returns(_ => throw new TaskCanceledException());
+            _httpHandler.OnSend = _ => throw new TaskCanceledException();
 
             await Assert.ThrowsAsync<TaskCanceledException>(() => _httpClient.SendAsync(request));
 
@@ -194,7 +196,7 @@ namespace OpenTracing.Contrib.AspNetCore.Tests.HttpOut
             Assert.Single(finishedSpans);
 
             var span = finishedSpans[0];
-            Assert.Equal("1", span.Tags[Tags.Error.Key]);
+            Assert.True(span.Tags[Tags.Error.Key] as bool?);
         }
 
         [Fact]
@@ -202,7 +204,7 @@ namespace OpenTracing.Contrib.AspNetCore.Tests.HttpOut
         {
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri("http://www.example.com/api/values"));
 
-            _httpHandler.Send(request).Returns(_ => throw new InvalidOperationException());
+            _httpHandler.OnSend = _ => throw new InvalidOperationException();
 
             await Assert.ThrowsAsync<InvalidOperationException>(() => _httpClient.SendAsync(request));
 
@@ -210,7 +212,7 @@ namespace OpenTracing.Contrib.AspNetCore.Tests.HttpOut
             Assert.Single(finishedSpans);
 
             var span = finishedSpans[0];
-            Assert.Equal("1", span.Tags[Tags.Error.Key]);
+            Assert.True(span.Tags[Tags.Error.Key] as bool?);
         }
     }
 }

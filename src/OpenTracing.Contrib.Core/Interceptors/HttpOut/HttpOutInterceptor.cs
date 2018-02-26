@@ -1,5 +1,6 @@
 using System;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DiagnosticAdapter;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -13,8 +14,9 @@ namespace OpenTracing.Contrib.Core.Interceptors.HttpOut
     {
         // Diagnostic names:
         // https://github.com/dotnet/corefx/blob/master/src/System.Net.Http/src/System/Net/Http/DiagnosticsHandlerLoggingStrings.cs
-        public const string EventRequest = "System.Net.Http.Request";
-        public const string EventResponse = "System.Net.Http.Response";
+        public const string ActivityName = "System.Net.Http.HttpRequestOut";
+        public const string EventRequest = ActivityName + ".Start";
+        public const string EventResponse = ActivityName + ".Stop";
         public const string EventException = "System.Net.Http.Exception";
 
         public const string Component = "HttpClient";
@@ -29,11 +31,23 @@ namespace OpenTracing.Contrib.Core.Interceptors.HttpOut
 
         protected override bool IsEnabled(string listenerName)
         {
-            if (listenerName == EventRequest) return true;
-            if (listenerName == EventResponse) return true;
-            if (listenerName == EventException) return true;
+            if (listenerName == ActivityName)
+                return true;
+            if (listenerName == EventRequest)
+                return true;
+            if (listenerName == EventResponse)
+                return true;
+            if (listenerName == EventException)
+                return true;
 
             return false;
+        }
+
+        [DiagnosticName(ActivityName)]
+        public void OnActivity()
+        {
+            // HACK: There Must be a method for the main activity name otherwise no activities are logged.
+            // So this is just a no-op.
         }
 
         [DiagnosticName(EventRequest)]
@@ -74,7 +88,7 @@ namespace OpenTracing.Contrib.Core.Interceptors.HttpOut
         }
 
         [DiagnosticName(EventResponse)]
-        public void OnResponse(HttpResponseMessage response)
+        public void OnResponse(HttpResponseMessage response, TaskStatus requestTaskStatus)
         {
             Execute(() =>
             {
@@ -85,8 +99,13 @@ namespace OpenTracing.Contrib.Core.Interceptors.HttpOut
                     scope?.Span?.SetTag(Tags.HttpStatus.Key, (int)response.StatusCode);
                 }
 
+                if (requestTaskStatus == TaskStatus.Canceled || requestTaskStatus == TaskStatus.Faulted)
+                {
+                    scope?.Span?.SetTag(Tags.Error.Key, true);
+                }
+
                 scope?.Dispose();
-             });
+            });
         }
 
         private bool ShouldIgnore(HttpRequestMessage request)
