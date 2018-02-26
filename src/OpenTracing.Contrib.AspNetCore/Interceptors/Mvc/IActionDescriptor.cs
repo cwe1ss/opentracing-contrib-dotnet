@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace OpenTracing.Contrib.AspNetCore.Interceptors.Mvc
 {
-    public interface IActionDescriptor
+    internal interface IActionDescriptor
     {
         string Id { get; }
         string DisplayName { get; }

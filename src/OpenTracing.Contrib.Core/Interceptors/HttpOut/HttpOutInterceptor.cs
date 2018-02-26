@@ -10,7 +10,7 @@ using OpenTracing.Tag;
 
 namespace OpenTracing.Contrib.Core.Interceptors.HttpOut
 {
-    public class HttpOutInterceptor : DiagnosticInterceptor
+    internal sealed class HttpOutInterceptor : DiagnosticInterceptor
     {
         // Diagnostic names:
         // https://github.com/dotnet/corefx/blob/master/src/System.Net.Http/src/System/Net/Http/DiagnosticsHandlerLoggingStrings.cs

@@ -8,6 +8,7 @@ namespace OpenTracing.Contrib.Core
     public abstract class DiagnosticInterceptor : IDiagnosticInterceptor
     {
         private IDisposable _subscription;
+        private readonly bool _isTraceLoggingEnabled;
 
         protected ILogger Logger { get; }
         protected ITracer Tracer { get; }
@@ -22,6 +23,8 @@ namespace OpenTracing.Contrib.Core
 
             Logger = loggerFactory.CreateLogger(GetType());
             Tracer = tracer;
+
+            _isTraceLoggingEnabled = Logger.IsEnabled(LogLevel.Trace);
         }
 
         public void Start()
@@ -37,26 +40,23 @@ namespace OpenTracing.Contrib.Core
             _subscription?.Dispose();
         }
 
-        protected virtual bool IsEnabled(string listenerName)
-        {
-            return true;
-        }
+        protected abstract bool IsEnabled(string listenerName);
 
         protected void Execute(Action action, [CallerMemberName] string callerMemberName = null)
         {
             try
             {
-                if (Logger.IsEnabled(LogLevel.Trace))
+                if (_isTraceLoggingEnabled)
                     Logger.LogTrace("{Event}-Start", callerMemberName);
 
                 action();
 
-                if (Logger.IsEnabled(LogLevel.Trace))
+                if (_isTraceLoggingEnabled)
                     Logger.LogTrace("{Event}-End", callerMemberName);
             }
             catch (Exception ex)
             {
-                Logger.LogError(0, ex, "{Event} failed", callerMemberName);
+                Logger.LogError(ex, "{Event} failed", callerMemberName);
             }
         }
 

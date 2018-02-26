@@ -12,7 +12,7 @@ namespace OpenTracing.Contrib.AspNetCore.Interceptors.RequestIn
     /// <remarks>
     /// <see cref="IHeaderDictionary"/> is a multi-value dictionary. Since most other platforms represent http headers as regular
     /// dictionaries, this carrier represents it as a regular dictionary to tracer implementations.</remarks>
-    public class HeaderDictionaryCarrier : ITextMap
+    internal sealed class HeaderDictionaryCarrier : ITextMap
     {
         private readonly IHeaderDictionary _headers;
 

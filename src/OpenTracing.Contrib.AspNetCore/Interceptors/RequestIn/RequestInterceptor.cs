@@ -9,7 +9,7 @@ using OpenTracing.Tag;
 
 namespace OpenTracing.Contrib.AspNetCore.Interceptors.RequestIn
 {
-    public class RequestInterceptor : DiagnosticInterceptor
+    internal sealed class RequestInterceptor : DiagnosticInterceptor
     {
         // Events from:
         // - Microsoft.AspNetCore.Hosting -> HostingApplication,

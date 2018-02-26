@@ -5,7 +5,7 @@ using OpenTracing.Tag;
 
 namespace OpenTracing.Contrib.Core.Interceptors.EntityFrameworkCore
 {
-    public class EntityFrameworkCoreInterceptor : DiagnosticInterceptor
+    internal sealed class EntityFrameworkCoreInterceptor : DiagnosticInterceptor
     {
         private const string EventBeforeExecuteCommand = "Microsoft.EntityFrameworkCore.BeforeExecuteCommand";
         private const string EventAfterExecuteCommand = "Microsoft.EntityFrameworkCore.AfterExecuteCommand";
@@ -24,9 +24,12 @@ namespace OpenTracing.Contrib.Core.Interceptors.EntityFrameworkCore
 
         protected override bool IsEnabled(string listenerName)
         {
-            if (listenerName == EventBeforeExecuteCommand) return true;
-            if (listenerName == EventAfterExecuteCommand) return true;
-            if (listenerName == EventCommandExecutionError) return true;
+            if (listenerName == EventBeforeExecuteCommand)
+                return true;
+            if (listenerName == EventAfterExecuteCommand)
+                return true;
+            if (listenerName == EventCommandExecutionError)
+                return true;
 
             return false;
         }

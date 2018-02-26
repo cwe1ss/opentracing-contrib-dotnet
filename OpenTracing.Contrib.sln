@@ -22,11 +22,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Tracer.Zipkin",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing", "..\..\opentracing\opentracing-csharp\src\OpenTracing\OpenTracing.csproj", "{89E1A35B-C1C7-4C0D-ACEE-C08EF89F325E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Contrib.AspNetCore.Tests", "test\OpenTracing.Contrib.AspNetCore.Tests\OpenTracing.Contrib.AspNetCore.Tests.csproj", "{29D93B24-CEF9-48BA-9DE5-961E1C0D52E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Contrib.Tests", "test\OpenTracing.Contrib.AspNetCore.Tests\OpenTracing.Contrib.Tests.csproj", "{29D93B24-CEF9-48BA-9DE5-961E1C0D52E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTracing.Contrib.Core", "src\OpenTracing.Contrib.Core\OpenTracing.Contrib.Core.csproj", "{10729E17-3C79-477B-BBEB-B727D7B5B60B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTracing.Contrib.Core", "src\OpenTracing.Contrib.Core\OpenTracing.Contrib.Core.csproj", "{10729E17-3C79-477B-BBEB-B727D7B5B60B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrafficGenerator", "samples\TrafficGenerator\TrafficGenerator.csproj", "{F82DCB26-7497-43A5-9F46-4B58DAB28C25}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrafficGenerator", "samples\TrafficGenerator\TrafficGenerator.csproj", "{F82DCB26-7497-43A5-9F46-4B58DAB28C25}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

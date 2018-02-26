@@ -1,18 +1,24 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.Hosting
 {
     public static class WebHostBuilderExtensions
     {
-        public static IWebHostBuilder UseOpenTracing(this IWebHostBuilder builder)
+        /// <summary>
+        /// Adds OpenTracing instrumentation that can be sent to any compatible tracer.
+        /// </summary>
+        public static IWebHostBuilder UseOpenTracing(this IWebHostBuilder webHostBuilder, Action<IOpenTracingBuilder> configure = null)
         {
-            builder.ConfigureServices(services =>
+            webHostBuilder.ConfigureServices(services =>
             {
-                services.AddOpenTracing()
+                var otBuilder = services.AddOpenTracing()
                     .AddAspNetCore();
+
+                configure?.Invoke(otBuilder);
             });
 
-            return builder;
+            return webHostBuilder;
         }
     }
 }

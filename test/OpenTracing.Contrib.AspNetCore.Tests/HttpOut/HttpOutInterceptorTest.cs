@@ -12,7 +12,7 @@ using OpenTracing.Mock;
 using OpenTracing.Tag;
 using Xunit;
 
-namespace OpenTracing.Contrib.AspNetCore.Tests.HttpOut
+namespace OpenTracing.Contrib.Tests.HttpOut
 {
     public class HttpOutInterceptorTest : IDisposable
     {

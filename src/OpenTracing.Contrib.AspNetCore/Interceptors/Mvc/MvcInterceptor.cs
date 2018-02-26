@@ -7,7 +7,7 @@ using OpenTracing.Tag;
 
 namespace OpenTracing.Contrib.AspNetCore.Interceptors.Mvc
 {
-    public class MvcInterceptor : DiagnosticInterceptor
+    internal sealed class MvcInterceptor : DiagnosticInterceptor
     {
         // Events
         private const string EventBeforeAction = "Microsoft.AspNetCore.Mvc.BeforeAction";
@@ -35,10 +35,14 @@ namespace OpenTracing.Contrib.AspNetCore.Interceptors.Mvc
 
         protected override bool IsEnabled(string listenerName)
         {
-            if (listenerName == EventBeforeAction) return true;
-            if (listenerName == EventAfterAction) return true;
-            if (listenerName == EventBeforeActionResult) return true;
-            if (listenerName == EventAfterActionResult) return true;
+            if (listenerName == EventBeforeAction)
+                return true;
+            if (listenerName == EventAfterAction)
+                return true;
+            if (listenerName == EventBeforeActionResult)
+                return true;
+            if (listenerName == EventAfterActionResult)
+                return true;
 
             return false;
         }
@@ -50,7 +54,7 @@ namespace OpenTracing.Contrib.AspNetCore.Interceptors.Mvc
             //       has been selected but no filters have run and model binding hasn't occured.
             Execute(() =>
             {
-                var typedActionDescriptor = ConvertActionDescriptor(actionDescriptor);
+                IActionDescriptor typedActionDescriptor = ConvertActionDescriptor(actionDescriptor);
 
                 string operationName = $"action_{typedActionDescriptor.ControllerName}/{typedActionDescriptor.ActionName}";
 
@@ -94,7 +98,7 @@ namespace OpenTracing.Contrib.AspNetCore.Interceptors.Mvc
 
         private IActionDescriptor ConvertActionDescriptor(object actionDescriptor)
         {
-            var typedActionDescriptor = (IActionDescriptor)null;
+            IActionDescriptor typedActionDescriptor = null;
 
             // NOTE: ActionDescriptor is usually ControllerActionDescriptor but the compile time type is
             //       ActionDescriptor. This is a problem because we are missing the ControllerName which

@@ -12,7 +12,7 @@ namespace OpenTracing.Contrib.Core.Interceptors.HttpOut
     /// <remarks>
     /// <see cref="HttpHeaders"/> is a multi-value dictionary. Since most other platforms represent http headers as regular
     /// dictionaries, this carrier represents it as a regular dictionary to tracer implementations.</remarks>
-    public class HttpHeadersCarrier : ITextMap
+    internal sealed class HttpHeadersCarrier : ITextMap
     {
         private readonly HttpHeaders _headers;
 

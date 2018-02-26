@@ -1,5 +1,6 @@
 using System;
 using OpenTracing.Contrib.Core;
+using OpenTracing.Contrib.Core.Configuration;
 using OpenTracing.Contrib.Core.Interceptors.EntityFrameworkCore;
 using OpenTracing.Contrib.Core.Interceptors.HttpOut;
 
@@ -21,14 +22,31 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Traces outgoing HTTP calls.
+        /// Traces <see cref="System.Net.Http.HttpClient"/> calls.
         /// </summary>
-        public static IOpenTracingBuilder AddHttpClient(this IOpenTracingBuilder builder)
+        public static IOpenTracingBuilder AddHttpClient(this IOpenTracingBuilder builder, Action<HttpOutOptions> options = null)
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
 
             builder.Services.AddSingleton<IDiagnosticInterceptor, HttpOutInterceptor>();
+
+            return ConfigureHttpClient(builder, options);
+        }
+
+        /// <summary>
+        /// Configuration for the instrumentation of <see cref="System.Net.Http.HttpClient"/> calls.
+        /// </summary>
+        /// <seealso cref="AddHttpClient(IOpenTracingBuilder, Action{HttpOutOptions})"/>
+        public static IOpenTracingBuilder ConfigureHttpClient(this IOpenTracingBuilder builder, Action<HttpOutOptions> options)
+        {
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+
+            if (options != null)
+            {
+                builder.Services.Configure(options);
+            }
 
             return builder;
         }
